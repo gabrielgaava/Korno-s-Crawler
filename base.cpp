@@ -32,7 +32,6 @@ void createMainChar(){
       float bodyposx = 0,bodyposy = 0,bodyposz = 0;
 
       glTranslatef(charz,chary,charx);
-
       glPushMatrix();
       glColor3f(1.5,0,0);
       glScalef(1, bodysize, 1);
