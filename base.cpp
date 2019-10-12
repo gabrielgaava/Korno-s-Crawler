@@ -61,6 +61,15 @@ void createMainChar(){
 
 }
 
+void createGround(){
+   glPushMatrix();
+   glTranslatef(0, -0.2, 0);
+   glScalef(30, 0.1, 30);
+   glColor3ub(255, 255, 255);
+   glutSolidCube(1);
+   glPopMatrix();
+}
+
 void moveCamera(){
    
    
@@ -71,7 +80,8 @@ void moveCamera(){
 }
 
 void adjustCamera(){
-   if(tipoCam > 0){ //camera 2d
+   //Camera 2D --
+   if(tipoCam > 0){ 
 
       posx = charx;
       posy = 30;
@@ -85,6 +95,7 @@ void adjustCamera(){
       ox = 1;
       oz = 0;
    }
+   //Camera 3D --
    else if(tipoCam < 0){
 
       posx = charx;
@@ -142,6 +153,7 @@ void Display()
    //Chamada para Fun��o  ou fun��es para desenhar o objeto/cena...
    //----------------------------------------------------------------
    //glPushMatrix(); //Salva o estado atual da cena. O que for desenhado ap�s o Push n�o influenciar� o j� representado
+      createGround();
       glColor3ub(100, 255, 40);
       createMainChar();
       
