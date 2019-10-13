@@ -1,66 +1,74 @@
-//Programa exemplo para representa��es de elementos bidimensionais e tridimensionais. A estrutura permite manipular diferentes proje��es.
+//Código fonto do jogo Korno's Crawler
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <GL/glut.h>
 #include <math.h>
 
+/* Declaração de Variáveis Globais */
 
-
-//Declara��o de Vari�veis Globais
+//Variáveis de definição de ângulo
 int angulo1 = 0, angulo2 = 0, angulo3 = 0;
-int projecao=0; //Vari�vel L�gica para Definir o Tipo de Proje��o (Perspectiva ou Ortogonal)
-int posx, posy, posz; //Vari�veis que definem a posi��o da c�mera
-int oy,ox,oz;         //Vari�veis que definem para onde a c�mera olha
-int lx, ly,lz;         //Vari�veis que definem qual eixo estar� na vertical do monitor.
+//Variável lógica para definir o tipo de projeção (perspectuva ou ortogonal)
+int projecao=0;
+//Variáveis que definem a posição da câmera
+int posx, posy, posz;
+//Variável que define para onde a câmera olha
+int oy, ox, oz;
+//Variável que definem qual eixo estará na vertical do monitor
+int lx, ly,lz;
+//Variáveis que definem a posição do personagem
 float charx = 0, chary = 0, charz = 0;
+//Variável que definee o tipo da câmera
+int tipoCam = 1;
 double t = 0;
 float increm = 0.017453293;
-int tipoCam = 1;
 
-//Prot�tipos das Fun��es
+//Protótipos das funções
 void Inicializa();
 void Display();
 void Mouse(int botao, int estado, int x, int y);
 void keyboard (unsigned char key, int x, int y);
 void TeclasEspeciais (int key, int x, int y);
+void createMainChar();
 
-
+//Função que cria o personagem principal
 void createMainChar(){
-     
-      int armsize =4.7,bodysize = 6,headsize = 1;
-      float armposx = 1.7,armposy = 0.5,armposz = 0,headposx = 0,headposy = 5,headposz = 0;
-      float bodyposx = 0,bodyposy = 0,bodyposz = 0;
+   //Variáveis que definem o modelo do personagem  
+   int armsize = 4.7, bodysize = 6, headsize = 1;
+   float armposx = 1.7, armposy = 0.5, armposz = 0;
+   float headposx = 0,headposy = 5,headposz = 0;
+   float bodyposx = 0,bodyposy = 0,bodyposz = 0;
 
-      glTranslatef(charz,chary,charx);
-      glPushMatrix();
-      glColor3f(1.5,0,0);
-      glScalef(1, bodysize, 1);
-      glutWireCube(1.5);
-      glTranslatef(bodyposx, bodyposy, bodyposz);
-      glPopMatrix();
+   glTranslatef(charz,chary,charx);
+   glPushMatrix();
+   glColor3f(1.5,0,0);
+   glScalef(1, bodysize, 1);
+   glutWireCube(1.5);
+   glTranslatef(bodyposx, bodyposy, bodyposz);
+   glPopMatrix();
 
-      glPushMatrix();
-      glTranslatef(0.0, 5, 0);
-      glutSolidSphere(1, 50, 50);
-      glPopMatrix();
+   glPushMatrix();
+   glTranslatef(0.0, 5, 0);
+   glutSolidSphere(1, 50, 50);
+   glPopMatrix();
 
-      glPushMatrix();
-      glScalef(0.6,armsize,0.6);
-      glTranslatef(armposx,armposy,armposz);
-      glRotatef(angulo1,1,0,0);
-      glutWireCube(1);
-      glPopMatrix();
+   glPushMatrix();
+   glScalef(0.6,armsize,0.6);
+   glTranslatef(armposx,armposy,armposz);
+   glRotatef(angulo1,1,0,0);
+   glutWireCube(1);
+   glPopMatrix();
 
-      glPushMatrix();
-      glScalef(0.6,armsize,0.6);
-      glTranslatef(-armposx,armposy,armposz);
-      glRotatef(angulo1,1,0,0);
-      glutWireCube(1);
-      glPopMatrix();
-
+   glPushMatrix();
+   glScalef(0.6,armsize,0.6);
+   glTranslatef(-armposx,armposy,armposz);
+   glRotatef(angulo1,1,0,0);
+   glutWireCube(1);
+   glPopMatrix();
 }
 
+//Função que cria o chão
 void createGround(){
    glPushMatrix();
    glTranslatef(0, -0.2, 0);
@@ -70,15 +78,13 @@ void createGround(){
    glPopMatrix();
 }
 
+//Função que movimenta a câmera
 void moveCamera(){
-   
-   
    posx = 30*sin(t);
    posz = 30*cos(t);
-
-
 }
 
+//Função que ajusta a câmera
 void adjustCamera(){
    //Camera 2D --
    if(tipoCam > 0){ 
@@ -111,153 +117,156 @@ void adjustCamera(){
       lz = charz;
 
    }
-
-
 }
 
-
-void Display()
-{
+//Função qeu configura o display
+void Display() {
    
    glEnable(GL_DEPTH_TEST);
-   
    glEnable(GL_LINE_SMOOTH);
    glEnable(GL_POLYGON_SMOOTH); 
-
    glEnable(GL_SMOOTH);
    glEnable(GL_BLEND);
    
-   // Inicializa par�metros de rendering
-    // Define a cor de fundo da janela de visualiza��o como preta
+   // Inicializa parâmetros de rendering
+   // Define a cor de fundo da janela de visualização como preta
    glClearColor(0.0, 0.0, 0.0, 0.0); 
    
    
-   glMatrixMode(GL_PROJECTION);/*glMatrixMode()- define qual matriz ser� alterada. SEMPRE defina o tipo de apresenta��o 
-                              (Ortogonal ou Perspectiva) na matriz PROJECTION.*/
-   glLoadIdentity();//"Limpa" ou "transforma" a matriz em identidade, reduzindo poss�veis erros.
+   //glMatrixMode() - define qual matriz será alterada
+	//SEMPRE defina o tipo de apresentação na matriz PROJECTION
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
 
-   if (projecao==1)
-      glOrtho(-150, 150, -150, 150, -150, 150); //Define a proje��o como ortogonal
-   else
-      gluPerspective(45,1,1,50); //Define a proje��o como perspectiva
+   if (projecao==1) {
+		//Define a projeção como ortogonal
+      glOrtho(-150, 150, -150, 150, -150, 150);
+	} else {
+      //Define a projeção como perspectiva
+		gluPerspective(45,1,1,150);
+	}
    
-   glMatrixMode(GL_MODELVIEW);/*glMatrixMode()- define qual matriz ser� alterada. SEMPRE defina a c�mera 
-                              (Ortogonal ou Perspectiva) na matriz MODELVIEW (onde o desenho ocorrer�).*/
-   glLoadIdentity(); ////"Limpa" ou "transforma" a matriz em identidade, reduzindo poss�veis erros.
-         adjustCamera();    
+   //glMatrixMode() define qual matriz será alterada
+	//SEMPRE defina a câmera (ortogonal ou perspectiva) na matriz MODELVIEW (onde o desenho ocorrerá)
+	glMatrixMode(GL_MODELVIEW);
+   glLoadIdentity();
+   
+   //Chamada para ajustar a câmera de acordo com a visão atual
+   adjustCamera();    
 
-   gluLookAt(posx,posy,posz,ox,oy,oz,lx,ly,lz); //Define a pos da c�mera, para onde olha e qual eixo est� na vertical.
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); /* "limpa" um buffer particular ou combina��es de buffers, 
-                                                         onde buffer � uma �rea de armazenamento para informa��es da imagem. 
-                                                        Nesse caso, est� "limpando os buffers para suportarem anima��es */
-   //Chamada para Fun��o  ou fun��es para desenhar o objeto/cena...
+   //Define a pos da câmera, para onde olha e qual eixo está na vertical
+   gluLookAt(posx, posy, posz, ox, oy, oz, lx, ly, lz);
+
+   //Limpa um buffer particular ou combinações de buffers, onde buffer é uma área de armazenamento para informações da imagem
+	//Nesse caso está limpando os buffers para suportarem animações
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   
+   //Chamada para Função  ou funções para desenhar o objeto/cena...
    //----------------------------------------------------------------
-   //glPushMatrix(); //Salva o estado atual da cena. O que for desenhado ap�s o Push n�o influenciar� o j� representado
-      createGround();
-      glColor3ub(100, 255, 40);
-      createMainChar();
-      
-
-
-  // glPopMatrix();  //Retorna ao estado anterior da cena. O que for desenhado ap�s o Push n�o influenciou o j� representado
+   createGround();
+   glColor3ub(100, 255, 40);
+   createMainChar();
    //----------------------------------------------------------------   
    
-   glutSwapBuffers(); //Executa a Cena. SwapBuffers d� suporte para mais de um buffer, permitindo execu��o de anima��es sem cintila��es. 
+   //Executa a cena
+	//SwapBuffers dá suporte para mais de um buffer, permitindo execução de animações sem cintilações
+	glutSwapBuffers(); 
 }
 
-void Mouse(int botao, int estado, int x, int y)
-{  //bot�o - recebe o c�digo do bot�o pressionado
-   //estado - recebe se est� pressionado ou n�o
-   //x, y - recebem respectivamente as posi��es do mouse na tela
-   switch (botao)
-   {
+void Mouse(int botao, int estado, int x, int y) {
+   //botao - recebe o código do botão pressionado
+   //estado - recebe se está pressionado ou não
+   //x, y - recebem respectivamente as posições do mouse na tela
+   switch (botao) {
       case GLUT_LEFT_BUTTON:
-
       break;
 
       case GLUT_RIGHT_BUTTON:
-      if(estado == GLUT_DOWN)
-      {
-         projecao=0;
-         posx=0; posy=10; posz=20;
-         oy=0; ox=0;  oz=0;
-         lx=0, ly=1, lz=0;
-         glutPostRedisplay();
-      }
+         if(estado == GLUT_DOWN) {
+            projecao=0;
+            posx=0; posy=10; posz=20;
+            oy=0; ox=0;  oz=0;
+            lx=0, ly=1, lz=0;
+            glutPostRedisplay();
+         }
       break;
    }
 }
 
-void keyboard (unsigned char key, int x, int y)
-{//Key - recebe o c�digo ASCII da tecla
- //x, y - recebem as posi��es do mouse na tela (permite tratar os dois dispositivos)
-    if(key == 'w')
-      charx ++;    
-    else if(key == 's')
-        charx --;
-    else if(key == 'a')
-         charz --;
-    else if(key == 'd')
-         charz ++;
-    else if(key == 'q'){
+void keyboard (unsigned char key, int x, int y) {
+   //Key - recebe o código ASCII da tecla
+   //x, y - recebem as posições do mouse na tela (permite tratar os dois dispositivos)
+   switch (key) {
+      case 'w':
+         charx++;
+         break;
+      case 's':
+         charx--;
+         break;
+      case 'a':
+         charz--;
+         break;
+      case 'd':
+         charz++;
+         break;
+      case 'q':
          t = (t + increm);
-      moveCamera();
-    }
-    else if(key == 'p'){
+         moveCamera();
+         break;
+      case 'p':
          tipoCam *= -1;
          adjustCamera();
-    }
+         break;
+   }
 
-      glutPostRedisplay();
+   glutPostRedisplay();
 }
 
-void TeclasEspeciais (int key, int x, int y)
-{//Key - recebe o c�digo ASCII da tecla
- //x, y - recebem respectivamente as posi��es mouse na tela (permite tratar os dois dispositivos)
-      if (key==GLUT_KEY_RIGHT)
-      {
-         posx+=5; ox+=5;
-      }
-      else if (key==GLUT_KEY_PAGE_UP)
-      {
-         posy+=5; oy+=5;
-      }
-      else if (key==GLUT_KEY_UP)
-      {
-         posz-=5; oz-=5;
-      }
-      else if (key==GLUT_KEY_LEFT)    
-      { 
-         posx-=5; ox-=5;
-      }
-      else if (key==GLUT_KEY_PAGE_DOWN)
-      {
-         posy-=5; oy-=5;
-      }
-      else if (key==GLUT_KEY_DOWN)
-      {      
-         posz+=5; oz+=5;
-      }
-      glutPostRedisplay();
+void TeclasEspeciais (int key, int x, int y) {
+   //Key - recebe o c�digo ASCII da tecla
+   //x, y - recebem respectivamente as posi��es mouse na tela (permite tratar os dois dispositivos)
+   if (key==GLUT_KEY_RIGHT) {
+      posx+=5; ox+=5;
+   }
+   else if (key==GLUT_KEY_PAGE_UP) {
+      posy+=5; oy+=5;
+   }
+   else if (key==GLUT_KEY_UP) {
+      posz-=5; oz-=5;
+   }
+   else if (key==GLUT_KEY_LEFT) { 
+      posx-=5; ox-=5;
+   }
+   else if (key==GLUT_KEY_PAGE_DOWN) {
+      posy-=5; oy-=5;
+   }
+   else if (key==GLUT_KEY_DOWN) {      
+      posz+=5; oz+=5;
+   }
+   glutPostRedisplay();
 }
 
 
-int main(int argc,char **argv)
-{
-   glutInit(&argc, argv); // Initializes glut
+int main(int argc,char **argv) {
+   //Iniatizes glut
+	glutInit(&argc, argv);
     
    
-   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH); /*Define as caracter�sticas do espa�o vetorial. 
-                                                                           //  Nesse caso, permite anima��es (sem cintila��es), cores compostas por Verm. Verde e Azul,
-                                                                           //  Buffer que permite trablhar com profundidade e elimina faces escondidas.*/           
-  
+   //Define as características do espaço vetorial
+	//Nesse caso, permite animações (sem cintilações), cores compostas por (R, G, B)
+	//Buffer que permite trabalhar com profundidade e elimina faces escondidas
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+
+   //Define a janela
    glutInitWindowSize(800, 800);
    glutInitWindowPosition(100, 100);
-   glutCreateWindow("Arms Simulation");
+   glutCreateWindow("Korno's Crawler");
+
    glutDisplayFunc(Display);
    glutMouseFunc(Mouse);
    glutKeyboardFunc(keyboard);
    glutSpecialFunc(TeclasEspeciais);
    glutMainLoop();
+   
    return 0; 
 }
