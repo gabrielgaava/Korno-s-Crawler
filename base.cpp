@@ -41,29 +41,34 @@ void createMainChar(){
    float bodyposx = 0,bodyposy = 0,bodyposz = 0;
 
    glTranslatef(charz,chary,charx);
+   
+   //Corpo do personagem
    glPushMatrix();
-   glColor3f(1.5,0,0);
+   glColor3f(1.5, 0, 0);
    glScalef(1, bodysize, 1);
    glutWireCube(1.5);
    glTranslatef(bodyposx, bodyposy, bodyposz);
    glPopMatrix();
 
+   //Cabeça do personagem
    glPushMatrix();
    glTranslatef(0.0, 5, 0);
    glutSolidSphere(1, 50, 50);
    glPopMatrix();
 
+   //Braço dos personagem
    glPushMatrix();
    glScalef(0.6,armsize,0.6);
    glTranslatef(armposx,armposy,armposz);
-   glRotatef(angulo1,1,0,0);
+   glRotatef(angulo1, 1, 0, 0);
    glutWireCube(1);
    glPopMatrix();
 
+   //Braço dos personagem
    glPushMatrix();
-   glScalef(0.6,armsize,0.6);
-   glTranslatef(-armposx,armposy,armposz);
-   glRotatef(angulo1,1,0,0);
+   glScalef(0.6, armsize, 0.6);
+   glTranslatef(-armposx, armposy, armposz);
+   glRotatef(angulo1, 1, 0, 0);
    glutWireCube(1);
    glPopMatrix();
 }
@@ -88,34 +93,37 @@ void moveCamera(){
 void adjustCamera(){
    //Camera 2D --
    if(tipoCam > 0){ 
+      //Define a posição da câmera
+      posx = 0; //charx
+      posy = 40;
+      posz = 0; //charz
 
-      posx = charx;
-      posy = 30;
-      posz = charz;
-
-      ly = 0;
-      lx = charx;
-      lz = charz;
-
+      //Define para onde a lente da câmera estará apontada
+      ox = 0; //charx
       oy = 0;
-      ox = 1;
-      oz = 0;
+      oz = 0; //charz
+
+      //Define eixo que vai estar a horizontal no monitor
+      lx = 1;
+      ly = 0;
+      lz = 0;
    }
    //Camera 3D --
    else if(tipoCam < 0){
-
+      //Define a posição da câmera
       posx = charx;
-      posy = chary +2;
+      posy = chary+2;
       posz = charz;
 
-      oy = 1;
-      ox = 0;
-      oz = 0;
+      //Define para onde a lente da câmera estará apontada
+      ox = charx;
+      oy = 5;
+      oz = charz;
 
-      ly = 5;
-      lx = charx;
-      lz = charz;
-
+      //Define eixo que vai estar a vertical no monitor
+      lx = 0;
+      ly = 1;
+      lz = 0;
    }
 }
 
