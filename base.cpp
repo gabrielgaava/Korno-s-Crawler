@@ -10,7 +10,7 @@
 //Variáveis de definição de ângulo
 int angulo1 = 0, angulo2 = 0, angulo3 = 0;
 //Variável lógica para definir o tipo de projeção (perspectuva ou ortogonal)
-int projecao=0;
+int projecao=1;
 //Variáveis que definem a posição da câmera
 int posx, posy, posz;
 //Variável que define para onde a câmera olha
@@ -18,7 +18,7 @@ int oy, ox, oz;
 //Variável que definem qual eixo estará na vertical do monitor
 int lx, ly,lz;
 //Variáveis que definem a posição do personagem
-float charx = 0, chary = 0, charz = 0;
+float charx = 0, chary = 4.4, charz = 0;
 //Variável que definee o tipo da câmera
 int tipoCam = 1;
 double t = 0;
@@ -37,8 +37,8 @@ void createMainChar(){
    //Variáveis que definem o modelo do personagem  
    int armsize = 4.7, bodysize = 6, headsize = 1;
    float armposx = 1.7, armposy = 0.5, armposz = 0;
-   float headposx = 0,headposy = 5,headposz = 0;
-   float bodyposx = 0,bodyposy = 0,bodyposz = 0;
+   float headposx = 0,headposy = 10,headposz = 0;
+   float bodyposx = 0,bodyposy = 5,bodyposz = 0;
 
    glTranslatef(charz,chary,charx);
    
@@ -49,6 +49,8 @@ void createMainChar(){
    glutWireCube(1.5);
    glTranslatef(bodyposx, bodyposy, bodyposz);
    glPopMatrix();
+   // glRotatef(90,0,1,0);
+
 
    //Cabeça do personagem
    glPushMatrix();
@@ -93,6 +95,7 @@ void moveCamera(){
 void adjustCamera(){
    //Camera 2D --
    if(tipoCam > 0){ 
+      projecao = 1;
       //Define a posição da câmera
       posx = 0; //charx
       posy = 40;
@@ -110,15 +113,16 @@ void adjustCamera(){
    }
    //Camera 3D --
    else if(tipoCam < 0){
+      projecao = 0;
       //Define a posição da câmera
-      posx = charx;
-      posy = chary+2;
-      posz = charz;
+      posx = 0 ;
+      posy = 0 ;
+      posz = 40 ;
 
       //Define para onde a lente da câmera estará apontada
-      ox = charx;
-      oy = 5;
-      oz = charz;
+      ox = 0;
+      oy = 0;
+      oz = 0;
 
       //Define eixo que vai estar a vertical no monitor
       lx = 0;
@@ -148,7 +152,7 @@ void Display() {
 
    if (projecao==1) {
 		//Define a projeção como ortogonal
-      glOrtho(-150, 150, -150, 150, -150, 150);
+      glOrtho(-50, 50, -50, 50, -50, 50);
 	} else {
       //Define a projeção como perspectiva
 		gluPerspective(45,1,1,150);
