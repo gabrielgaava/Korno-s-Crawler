@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <GL/glut.h>
 #include <math.h>
+#include <time.h>
+#include "map.h"
 
 /* Declaração de Variáveis Globais */
 
@@ -51,7 +53,6 @@ void createMainChar(){
    glPopMatrix();
    // glRotatef(90,0,1,0);
 
-
    //Cabeça do personagem
    glPushMatrix();
    glTranslatef(0.0, 5, 0);
@@ -76,14 +77,14 @@ void createMainChar(){
 }
 
 //Função que cria o chão
-void createGround(){
+/*void createGround(){
    glPushMatrix();
    glTranslatef(0, -0.2, 0);
    glScalef(30, 0.1, 30);
    glColor3ub(255, 255, 255);
    glutSolidCube(1);
    glPopMatrix();
-}
+}*/
 
 //Função que movimenta a câmera
 void moveCamera(){
@@ -116,7 +117,7 @@ void adjustCamera(){
       projecao = 0;
       //Define a posição da câmera
       posx = 0 ;
-      posy = 0 ;
+      posy = 40 ;
       posz = 40 ;
 
       //Define para onde a lente da câmera estará apontada
@@ -152,7 +153,7 @@ void Display() {
 
    if (projecao==1) {
 		//Define a projeção como ortogonal
-      glOrtho(-50, 50, -50, 50, -50, 50);
+      glOrtho(0, 128, 0, 128, 0, 128);
 	} else {
       //Define a projeção como perspectiva
 		gluPerspective(45,1,1,150);
@@ -175,7 +176,7 @@ void Display() {
    
    //Chamada para Função  ou funções para desenhar o objeto/cena...
    //----------------------------------------------------------------
-   createGround();
+   build_phase();
    glColor3ub(100, 255, 40);
    createMainChar();
    //----------------------------------------------------------------   
@@ -262,7 +263,9 @@ void TeclasEspeciais (int key, int x, int y) {
 int main(int argc,char **argv) {
    //Iniatizes glut
 	glutInit(&argc, argv);
-    
+
+   //Seed da srand
+   srand(time(NULL));
    
    //Define as características do espaço vetorial
 	//Nesse caso, permite animações (sem cintilações), cores compostas por (R, G, B)
