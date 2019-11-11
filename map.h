@@ -128,21 +128,25 @@ void conect_room () {
 
 //Função que seta na matriz a localização das paredes
 void create_wall() {
-	/*int i, j;
+	int i, j, auxi, auxj;
+	int size_x = current_phase->size_x;
+	int size_z = current_phase->size_z;
 
-	for (i = 0; i < current_phase->size_x; i++) {
-		for (j = 0; j < current_phase->size_z - 1; j++) {
-			if (current_phase->map[i][j] == 0) {
-				if (current_phase->map[i+1][j] == 1 || current_phase->map[i][j+1] || current_phase->map[i+1][j+1]) {
-					current_phase->map[i][j] = 2;
+	//Percorre a matriz em busca do chão para colocar paredes em volta
+	for (i = 1; i < size_x - 1; i++) {
+		for (j = 1; j < size_z - 1; j++) {
+			if (current_phase->map[i][j] == 1) {
+				//Verifica as bordas da posição da matriz
+				for (auxi = i-1; auxi <= i+1; auxi++) {
+					for (auxj = j-1; auxj <= j+1; auxj++){
+						if (current_phase->map[auxi][auxj] == 0) {
+							current_phase->map[auxi][auxj] = 2;
+						}
+					}
 				}
 			}
-
-			if (current_phase->map[i][j] == 1 && current_phase->map[i][j + 1] == 0) {
-				current_phase->map[i][j + 1] = 2;
-			}
 		}
-	}*/
+	}
 }
 
 //Função que monta a matriz do mapa
@@ -173,15 +177,17 @@ void build_map() {
 
 			switch (current_phase->map[i][j]) {
 				case 1:
+					//Chão
 					glTranslatef(i, -0.2, j);
 					glScalef(1, 0.1, 1);
 					glColor3ub(255, 255, 255);
 					glutSolidCube(1);
 					break;
 				case 2:
+					//Paredes
 					glTranslatef(i, -0.2, j);
-					glScalef(1, 5, 1);
-					glColor3ub(255, 255, 255);
+					glScalef(1, 10, 1);
+					glColor3ub(0, 255, 0);
 					glutSolidCube(1);
 					break;
 				default:
