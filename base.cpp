@@ -6,6 +6,7 @@
 #include <math.h>
 #include <time.h>
 #include "map.h"
+#include "character.h"
 
 /* Declaração de Variáveis Globais */
 
@@ -19,8 +20,7 @@ int posx, posy, posz;
 int oy, ox, oz;
 //Variável que definem qual eixo estará na vertical do monitor
 int lx, ly,lz;
-//Variáveis que definem a posição do personagem
-float charx = 0, chary = 4.4, charz = 0;
+
 //Variável que definee o tipo da câmera
 int tipoCam = 1;
 double t = 0;
@@ -32,59 +32,6 @@ void Display();
 void Mouse(int botao, int estado, int x, int y);
 void keyboard (unsigned char key, int x, int y);
 void TeclasEspeciais (int key, int x, int y);
-void createMainChar();
-
-//Função que cria o personagem principal
-void createMainChar(){
-   //Variáveis que definem o modelo do personagem  
-   int armsize = 4.7, bodysize = 6, headsize = 1;
-   float armposx = 1.7, armposy = 0.5, armposz = 0;
-   float headposx = 0,headposy = 10,headposz = 0;
-   float bodyposx = 0,bodyposy = 5,bodyposz = 0;
-
-   glTranslatef(charz,chary,charx);
-   
-   //Corpo do personagem
-   glPushMatrix();
-   glColor3f(1.5, 0, 0);
-   glScalef(1, bodysize, 1);
-   glutWireCube(1.5);
-   glTranslatef(bodyposx, bodyposy, bodyposz);
-   glPopMatrix();
-   // glRotatef(90,0,1,0);
-
-   //Cabeça do personagem
-   glPushMatrix();
-   glTranslatef(0.0, 5, 0);
-   glutSolidSphere(1, 50, 50);
-   glPopMatrix();
-
-   //Braço dos personagem
-   glPushMatrix();
-   glScalef(0.6,armsize,0.6);
-   glTranslatef(armposx,armposy,armposz);
-   glRotatef(angulo1, 1, 0, 0);
-   glutWireCube(1);
-   glPopMatrix();
-
-   //Braço dos personagem
-   glPushMatrix();
-   glScalef(0.6, armsize, 0.6);
-   glTranslatef(-armposx, armposy, armposz);
-   glRotatef(angulo1, 1, 0, 0);
-   glutWireCube(1);
-   glPopMatrix();
-}
-
-//Função que cria o chão
-/*void createGround(){
-   glPushMatrix();
-   glTranslatef(0, -0.2, 0);
-   glScalef(30, 0.1, 30);
-   glColor3ub(255, 255, 255);
-   glutSolidCube(1);
-   glPopMatrix();
-}*/
 
 //Função que movimenta a câmera
 void moveCamera(){
@@ -176,9 +123,9 @@ void Display() {
    
    //Chamada para Função  ou funções para desenhar o objeto/cena...
    //----------------------------------------------------------------
-   build_phase();
+   buildPhase();
    glColor3ub(100, 255, 40);
-   createMainChar();
+   buildMainChar();
    //----------------------------------------------------------------   
    
    //Executa a cena
@@ -211,16 +158,16 @@ void keyboard (unsigned char key, int x, int y) {
    //x, y - recebem as posições do mouse na tela (permite tratar os dois dispositivos)
    switch (key) {
       case 'w':
-         charx++;
+         mainChar->charx++;
          break;
       case 's':
-         charx--;
+         mainChar->charx--;
          break;
       case 'a':
-         charz--;
+         mainChar->charz--;
          break;
       case 'd':
-         charz++;
+         mainChar->charz++;
          break;
       case 'q':
          t = (t + increm);
