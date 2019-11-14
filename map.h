@@ -11,9 +11,9 @@ typedef struct room {
 // Struct da fase
 typedef struct phase {
     int size_x, size_z;
-	// Valores possíveis: 1 => chão, 2 => parede, 0 => nada
-    int map[128][128];
+    int map[128][128]; // Valores possíveis: 1 => chão, 2 => parede, 0 => nada
 	int finished;
+	int numberRoom;
     room *room_list;
 } phase;
 
@@ -48,6 +48,9 @@ void createNewPhase() {
 
     //Seta a lista com NULL
     currentPhase->room_list = NULL;
+
+	//Seta o numero de salas que o mapa deve ter
+	currentPhase->numberRoom = 8;
 
 	//Seta para 0 a finished
 	currentPhase->finished = 0;
@@ -150,12 +153,11 @@ void createWall() {
 
 //Função que monta a matriz do mapa
 void createMap() {
-	int number_room = 8;
 	int size_room = 10;
 	int i, j;
 
 	//Cria number_room salas aleatoriamente
-	for (i = 0; i < number_room; i++) {
+	for (i = 0; i < currentPhase->numberRoom; i++) {
 		createRoom(size_room);
 	}
 	
@@ -177,15 +179,15 @@ void buildMap() {
 			switch (currentPhase->map[i][j]) {
 				case 1:
 					//Chão
-					glTranslatef(i, -0.2, j);
+					glTranslatef(i + 0.5, -0.2, j + 0.5);
 					glScalef(1, 0.1, 1);
-					glColor3ub(255, 255, 255);
+					glColor3ub(70, 70, 70);
 					glutSolidCube(1);
 					break;
 				case 2:
 					//Paredes
-					glTranslatef(i, -0.2, j);
-					glScalef(1, 10, 1);
+					glTranslatef(i + 0.5, 4, j + 0.5);
+					glScalef(1, 8, 1);
 					glColor3ub(0, 255, 0);
 					glutSolidCube(1);
 					break;

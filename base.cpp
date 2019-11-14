@@ -45,14 +45,14 @@ void adjustCamera(){
    if(tipoCam > 0){ 
       projecao = 1;
       //Define a posição da câmera
-      posx = 0; //charx
-      posy = 40;
-      posz = 0; //charz
+      posx = mainChar->charx; //charx
+      posy = 9;
+      posz = mainChar->charz; //charz
 
       //Define para onde a lente da câmera estará apontada
-      ox = 0; //charx
+      ox = mainChar->charx; //charx
       oy = 0;
-      oz = 0; //charz
+      oz = mainChar->charz; //charz
 
       //Define eixo que vai estar a horizontal no monitor
       lx = 1;
@@ -63,9 +63,9 @@ void adjustCamera(){
    else if(tipoCam < 0){
       projecao = 0;
       //Define a posição da câmera
-      posx = 0 ;
-      posy = 40 ;
-      posz = 40 ;
+      posx = 0;
+      posy = 5;
+      posz = -5;
 
       //Define para onde a lente da câmera estará apontada
       ox = 0;
@@ -92,7 +92,6 @@ void Display() {
    // Define a cor de fundo da janela de visualização como preta
    glClearColor(0.0, 0.0, 0.0, 0.0); 
    
-   
    //glMatrixMode() - define qual matriz será alterada
 	//SEMPRE defina o tipo de apresentação na matriz PROJECTION
 	glMatrixMode(GL_PROJECTION);
@@ -100,7 +99,7 @@ void Display() {
 
    if (projecao==1) {
 		//Define a projeção como ortogonal
-      glOrtho(0, 128, 0, 128, 0, 128);
+      glOrtho(-10, 10, -10, 10, -10, 10);
 	} else {
       //Define a projeção como perspectiva
 		gluPerspective(45,1,1,150);
@@ -124,8 +123,8 @@ void Display() {
    //Chamada para Função  ou funções para desenhar o objeto/cena...
    //----------------------------------------------------------------
    buildPhase();
-   glColor3ub(100, 255, 40);
    buildMainChar();
+   buildMonsters();
    //----------------------------------------------------------------   
    
    //Executa a cena
@@ -156,35 +155,79 @@ void Mouse(int botao, int estado, int x, int y) {
 void keyboard (unsigned char key, int x, int y) {
    //Key - recebe o código ASCII da tecla
    //x, y - recebem as posições do mouse na tela (permite tratar os dois dispositivos)
-   switch (key) {
-      case 'w':
-         mainChar->charx++;
-         break;
-      case 's':
-         mainChar->charx--;
-         break;
-      case 'a':
-         mainChar->charz--;
-         break;
-      case 'd':
-         mainChar->charz++;
-         break;
-      case 'q':
-         t = (t + increm);
-         moveCamera();
-         break;
-      case 'p':
-         tipoCam *= -1;
-         adjustCamera();
-         break;
+   
+   if (projecao == 1) {
+      //Caso seja 2D
+      switch (key) {
+         case 'w':
+            if (currentPhase->map[mainChar->charx + 1][mainChar->charz] == 1) {
+               if (mainChar->direcaox != 1) {
+                  mainChar->direcaox = 1;
+                  mainChar->direcaoz = 0;
+               } else {
+                  mainChar->charx++;   
+               }
+            }
+            break;
+         case 's':
+            if (currentPhase->map[mainChar->charx - 1][mainChar->charz] == 1) {
+               
+               if (mainChar->direcaox != -1) {
+                  mainChar->direcaox = -1;
+                  mainChar->direcaoz = 0;
+               } else {
+                  mainChar->charx--;
+               }
+            }
+            break;
+         case 'a':
+            if (currentPhase->map[mainChar->charx][mainChar->charz - 1] == 1) {
+               if (mainChar->direcaoz != -1) {
+                  mainChar->direcaox = 0;
+                  mainChar->direcaoz = -1;
+               } else {
+                  mainChar->charz--;
+               }
+            }
+            break;
+         case 'd':
+            if (currentPhase->map[mainChar->charx][mainChar->charz + 1] == 1) {
+               if (mainChar->direcaoz != 1) {
+                  mainChar->direcaox = 0;
+                  mainChar->direcaoz = 1;
+               } else {
+                  mainChar->charz++;
+               }
+            }
+            break;
+         case 'p':
+            tipoCam *= -1;
+            adjustCamera();
+            break;
+         default:
+            printf("%c ", key);
+            break;
+      }
+   } else {
+      //Caso a projeção seja 3D
+      switch(key) {
+          case 'q':
+            t = (t + increm);
+            moveCamera();
+            break;
+         case 'p':
+            tipoCam *= -1;
+            adjustCamera();
+            break;
+      }
    }
 
    glutPostRedisplay();
 }
 
 void TeclasEspeciais (int key, int x, int y) {
-   //Key - recebe o c�digo ASCII da tecla
-   //x, y - recebem respectivamente as posi��es mouse na tela (permite tratar os dois dispositivos)
+   //Key - recebe o código ASCII da tecla
+   //x, y - recebem respectivamente as posições mouse na tela (permite tratar os dois dispositivos)
    if (key==GLUT_KEY_RIGHT) {
       posx+=5; ox+=5;
    }
@@ -206,7 +249,6 @@ void TeclasEspeciais (int key, int x, int y) {
    glutPostRedisplay();
 }
 
-
 int main(int argc,char **argv) {
    //Iniatizes glut
 	glutInit(&argc, argv);
@@ -223,6 +265,11 @@ int main(int argc,char **argv) {
    glutInitWindowSize(800, 800);
    glutInitWindowPosition(100, 100);
    glutCreateWindow("Korno's Crawler");
+
+   //Inicializa as variáveis da Phase 1 do jogo
+   createNewPhase();
+   createMap();
+   createMainChar();
 
    glutDisplayFunc(Display);
    glutMouseFunc(Mouse);
