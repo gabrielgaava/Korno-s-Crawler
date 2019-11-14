@@ -7,6 +7,7 @@
 #include <time.h>
 #include "map.h"
 #include "character.h"
+#include <iostream>
 
 /* Declaração de Variáveis Globais */
 
@@ -20,11 +21,15 @@ int posx, posy, posz;
 int oy, ox, oz;
 //Variável que definem qual eixo estará na vertical do monitor
 int lx, ly,lz;
-
+double rotation, inclination;
+int botao,estado;
 //Variável que definee o tipo da câmera
 int tipoCam = 1;
 double t = 0;
-float increm = 0.017453293;
+
+#ifndef DEG_TO_RAD
+#define DEG_TO_RAD 0.017453292519943295769236907684886
+#endif
 
 //Protótipos das funções
 void Inicializa();
@@ -39,10 +44,33 @@ void moveCamera(){
    posz = 30*cos(t);
 }
 
+
+bool enableMouseMovement = false;
+void UpdateCameraCenter(bool CheckValue) {
+  if(CheckValue) {
+    if(rotation >= 360)
+      rotation -= 360;
+    if(rotation < 0)
+      rotation += 360;
+    
+    if(inclination <= 45)
+      inclination = 45;
+    if(inclination >= 135)
+      inclination = 135;
+  }
+  
+  ox = (sin(DEG_TO_RAD * inclination) * sin(DEG_TO_RAD * rotation) + posx);
+  oy = (sin(DEG_TO_RAD * inclination) * cos(DEG_TO_RAD * rotation) + posy);
+  oz = (cos(DEG_TO_RAD * inclination) + posz);
+}
+
+
+
 //Função que ajusta a câmera
 void adjustCamera(){
    //Camera 2D --
    if(tipoCam > 0){ 
+      enableMouseMovement = false;
       projecao = 1;
       //Define a posição da câmera
       posx = mainChar->charx; //charx
@@ -61,18 +89,13 @@ void adjustCamera(){
    }
    //Camera 3D --
    else if(tipoCam < 0){
+      enableMouseMovement = true;
       projecao = 0;
-      //Define a posição da câmera
-      posx = 0;
-      posy = 5;
-      posz = -5;
-
-      //Define para onde a lente da câmera estará apontada
-      ox = 0;
-      oy = 0;
-      oz = 0;
-
-      //Define eixo que vai estar a vertical no monitor
+      posx = mainChar->charx;
+      posz = mainChar->chary;
+      posy = 1.5;
+      Mouse(botao,estado,rotation,inclination);
+      UpdateCameraCenter(enableMouseMovement);  
       lx = 0;
       ly = 1;
       lz = 0;
@@ -103,6 +126,7 @@ void Display() {
 	} else {
       //Define a projeção como perspectiva
 		gluPerspective(45,1,1,150);
+
 	}
    
    //glMatrixMode() define qual matriz será alterada
@@ -126,13 +150,12 @@ void Display() {
    buildMainChar();
    buildMonsters();
    //----------------------------------------------------------------   
-   
    //Executa a cena
 	//SwapBuffers dá suporte para mais de um buffer, permitindo execução de animações sem cintilações
 	glutSwapBuffers(); 
 }
 
-void Mouse(int botao, int estado, int x, int y) {
+void Mouse(int botao, int estado, int rotation, int inclination) {
    //botao - recebe o código do botão pressionado
    //estado - recebe se está pressionado ou não
    //x, y - recebem respectivamente as posições do mouse na tela
@@ -141,15 +164,9 @@ void Mouse(int botao, int estado, int x, int y) {
       break;
 
       case GLUT_RIGHT_BUTTON:
-         if(estado == GLUT_DOWN) {
-            projecao=0;
-            posx=0; posy=10; posz=20;
-            oy=0; ox=0;  oz=0;
-            lx=0, ly=1, lz=0;
-            glutPostRedisplay();
-         }
       break;
    }
+
 }
 
 void keyboard (unsigned char key, int x, int y) {
@@ -211,14 +228,6 @@ void keyboard (unsigned char key, int x, int y) {
    } else {
       //Caso a projeção seja 3D
       switch(key) {
-          case 'q':
-            t = (t + increm);
-            moveCamera();
-            break;
-         case 'p':
-            tipoCam *= -1;
-            adjustCamera();
-            break;
       }
    }
 
