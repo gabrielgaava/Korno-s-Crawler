@@ -36,6 +36,7 @@ void createWall();
 void createMap();
 void buildMap();
 void buildPhase();
+int verifyMapContent(int, int);
 void printMap();
 
 // Função que inicializa a struct fase
@@ -221,6 +222,11 @@ void buildPhase() {
 
 	// Monta os objetos da cena
 	buildMap();
+}
+
+//Função que verifica o conteudo do mapa no ponto (X,Z)
+int verifyMapContent(int x, int z) {
+	return currentPhase->map[x][z];
 }
 
 /* Funções de DEBUG */

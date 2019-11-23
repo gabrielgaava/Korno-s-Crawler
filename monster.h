@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <math.h>
 #include <GL/glut.h>
 
 /* Definição das structs */
@@ -129,5 +130,63 @@ void buildMonsters() {
     }
 }
 
+//Função que realiza a movimentação dos monstros
 void moveMonsters() {
+    monster *aux = NULL;
+    float distance, distX, distZ;
+    int step;
+
+    for (aux = listMonsters; aux != NULL; aux = aux->next) {
+        //Se o monstro não está morto
+         
+        if (aux->life > 0) {
+            //Calcula a distancia do monstro para o player
+            distX = mainChar->charx - aux->charx;
+            distZ = mainChar->charz - aux->charz;
+            distance = sqrt(pow(distX, 2) + pow(distZ, 2));
+
+            //Se estiver no campo de visão percorre o caminho
+            if (distance < 25){
+                if (distance == 1) {
+                    puts("[DBG] Dano no player");
+                    continue;
+                }
+
+                //ATENÇÃO: Essa parte do código abaixo foi realizada as pressas
+                //Foi mal :/
+                //if (tipoCam > 0) {
+                    //Caso o tipo da câmera for 2D
+
+                    //Se entrar em algum IF, vai para a próxima iteração do for
+                    if (distX > 0 && verifyMapContent(aux->charx+1, aux->charz) != 2) {
+                        aux->charx = aux->charx + 1;
+                        aux->direcaox = 0;
+                        aux->direcaoz = 1;
+                        continue;
+                    }
+
+                    if (distX < 0 && verifyMapContent(aux->charx-1, aux->charz) != 2) {
+                        aux->charx = aux->charx - 1;
+                        aux->direcaox = 0;
+                        aux->direcaoz = -1;
+                        continue;
+                    }
+
+                    if (distZ > 0 && verifyMapContent(aux->charx, aux->charz+1) != 2) {
+                        aux->charz = aux->charz + 1;
+                        aux->direcaox = 0;
+                        aux->direcaoz = 1;
+                        continue;
+                    }
+
+                    if (distZ > 0 && verifyMapContent(aux->charx, aux->charz-1) != 2) {
+                        aux->charz = aux->charz - 1;
+                        aux->direcaox = 0;
+                        aux->direcaoz = -1;
+                        continue;
+                    }
+                //}
+            }
+        }
+    }
 }
