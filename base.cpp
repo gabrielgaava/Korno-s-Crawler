@@ -2,20 +2,21 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <GL/glut.h>
 #include <math.h>
 #include <time.h>
+#include <GL/glut.h>
+#include <iostream>
 #include "map.h"
 #include "character.h"
+#include "monster.h"
 #include <iostream>
 using namespace std;
+
 
 /* Declaração de Variáveis Globais */
 
 //Variáveis de definição de ângulo
 int angulo1 = 0, angulo2 = 0, angulo3 = 0;
-//Variável lógica para definir o tipo de projeção (perspectuva ou ortogonal)
-int projecao=1;
 //Variáveis que definem a posição da câmera
 int posx, posy, posz;
 //Variável que define para onde a câmera olha
@@ -45,6 +46,7 @@ void HUD();
 void drawHUD();
 void timer(int);
 void buildFrame();
+void createGame();
 
 //Função que movimenta a câmera
 void moveCamera(){
@@ -76,7 +78,6 @@ void adjustCamera(){
    //Camera 2D --
    if(tipoCam > 0){ 
       enableMouseMovement = false;
-      projecao = 1;
       //Define a posição da câmera
       posx = mainChar->charx; //charx
       posy = 9;
@@ -94,7 +95,6 @@ void adjustCamera(){
    }
    //Camera 3D --
    else if(tipoCam < 0){
-      projecao = 0;
       posx = mainChar->charx;
       posz = mainChar->charz;
       posy = 2;
@@ -112,6 +112,9 @@ void buildFrame() {
 
    //Posiciona o jogador
    buildMainChar();
+
+   //Realiza o movimento dos monstros
+   moveMonsters();
 
    //Posiciona os monstros
    buildMonsters();
@@ -153,6 +156,15 @@ void timer(int){
    glutTimerFunc(1000/60,timer,0);
 }
 
+//Função que cria as variáveis do jogo
+void createGame() {
+   //Inicializa (ou cria uma nova) fase com salas e paredes
+   createPhase();
+
+   //Cria novos monstros
+   createMonsters();
+}
+
 //Função qeu configura o display
 void Display() {
    
@@ -171,7 +183,7 @@ void Display() {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-   if (projecao==1) {
+   if (tipoCam > 0) {
 		//Define a projeção como ortogonal
       glOrtho(-10, 10, -10, 10, -10, 10);
 	} else {
@@ -350,8 +362,9 @@ int main(int argc,char **argv) {
    glutCreateWindow("Korno's Crawler");
 
    //Inicializa as variáveis da Phase 1 do jogo
-   createNewPhase();
-   createMap();
+   createGame();
+
+   //Inicializa as variaveis do personagem principal
    createMainChar();
 
    //Mostra o Mapa
