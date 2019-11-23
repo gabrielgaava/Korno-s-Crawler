@@ -37,6 +37,7 @@ void Display();
 void Mouse(int botao, int estado, int x, int y);
 void keyboard (unsigned char key, int x, int y);
 void TeclasEspeciais (int key, int x, int y);
+void buildFrame();
 
 //Função que movimenta a câmera
 void moveCamera(){
@@ -63,8 +64,6 @@ void UpdateCameraCenter(bool CheckValue) {
   oy = (sin(DEG_TO_RAD * inclination) * cos(DEG_TO_RAD * rotation) + posy);
   oz = (cos(DEG_TO_RAD * inclination) + posz);
 }
-
-
 
 //Função que ajusta a câmera
 void adjustCamera(){
@@ -98,6 +97,18 @@ void adjustCamera(){
       lz = 0;
       oy = 2;
    }
+}
+
+//Função que cria o Frame
+void buildFrame() {
+   //Constroi o mapa
+   buildPhase();
+
+   //Posiciona o jogador
+   buildMainChar();
+
+   //Posiciona os monstros
+   buildMonsters();
 }
 
 //Função qeu configura o display
@@ -142,11 +153,9 @@ void Display() {
 	//Nesse caso está limpando os buffers para suportarem animações
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    
-   //Chamada para Função  ou funções para desenhar o objeto/cena...
+   //Chamada para Função que desenha o objeto/cena...
    //----------------------------------------------------------------
-   buildPhase();
-   buildMainChar();
-   buildMonsters();
+   buildFrame();
    //----------------------------------------------------------------   
    //Executa a cena
 	//SwapBuffers dá suporte para mais de um buffer, permitindo execução de animações sem cintilações
@@ -171,9 +180,13 @@ void keyboard (unsigned char key, int x, int y) {
    //Key - recebe o código ASCII da tecla
    //x, y - recebem as posições do mouse na tela (permite tratar os dois dispositivos)
       //Caso seja 2D
+
+      //Passa para int a posição do personagem
+      int posX = (int) mainChar->charx;
+      int posZ = (int) mainChar->charz;
       switch (key) {
          case 'w':
-            if (currentPhase->map[mainChar->charx + 1][mainChar->charz] == 1) {
+            if (currentPhase->map[posX + 1][posZ] == 1) {
                if (mainChar->direcaox != 1) {
                   mainChar->direcaox = 1;
                   mainChar->direcaoz = 0;
@@ -188,7 +201,7 @@ void keyboard (unsigned char key, int x, int y) {
             }
             break;
          case 's':
-            if (currentPhase->map[mainChar->charx - 1][mainChar->charz] == 1) {
+            if (currentPhase->map[posX - 1][posZ] == 1) {
                
                if (mainChar->direcaox != -1) {
                   mainChar->direcaox = -1;
@@ -204,7 +217,7 @@ void keyboard (unsigned char key, int x, int y) {
             }
             break;
          case 'a':
-            if (currentPhase->map[mainChar->charx][mainChar->charz - 1] == 1) {
+            if (currentPhase->map[posX][posZ - 1] == 1) {
                if (mainChar->direcaoz != -1) {
                   mainChar->direcaox = 0;
                   mainChar->direcaoz = -1;
@@ -219,7 +232,7 @@ void keyboard (unsigned char key, int x, int y) {
             }
             break;
          case 'd':
-            if (currentPhase->map[mainChar->charx][mainChar->charz + 1] == 1) {
+            if (currentPhase->map[posX][posZ + 1] == 1) {
                if (mainChar->direcaoz != 1) {
                   mainChar->direcaox = 0;
                   mainChar->direcaoz = 1;
@@ -238,9 +251,23 @@ void keyboard (unsigned char key, int x, int y) {
             adjustCamera();
             break;
          default:
-            printf("%c ", key);
             break;
       }
+<<<<<<< HEAD
+=======
+   } else {
+      //Caso a projeção seja 3D
+      switch(key) {
+         case 'p':
+            tipoCam *= -1;
+            adjustCamera();
+            break;
+         default:
+            break;
+      }
+   }
+
+>>>>>>> faaaa5db20928dfccae0a5449b48658b40d18ec0
    glutPostRedisplay();
 }
 
