@@ -213,7 +213,7 @@ void buildMap() {
 					//Chão
 					glTranslatef(i + 0.5, -0.2, j + 0.5);
 					glScalef(1, 0.1, 1);
-					glColor3ub(70, 70, 70);
+					glColor3ub(70, 70, 70);	
 					glutSolidCube(1);
 					break;
 				case 2:
@@ -225,7 +225,7 @@ void buildMap() {
 					break;
 
 				case 9:
-					//Stamina
+					//Life
 					glTranslatef(i + 0.5, 2, j + 0.5);
 					glScalef(0.015, 0.015, 0.015);
 					glColor3ub(255,0,0);

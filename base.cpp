@@ -31,6 +31,7 @@ double t = 0;
 
 //Vida do jogador
 float pLife = 100;
+float lifePerc = 1;
 
 //Variaveis para contagem de FPS
 int initial_time = time(NULL), final_time, frame_count = 0;
@@ -50,6 +51,7 @@ void drawHUD();
 void timer(int);
 void buildFrame();
 void createGame();
+void getLife(int x, int z);
 
 //Função que movimenta a câmera
 void moveCamera(){
@@ -123,16 +125,22 @@ void buildFrame() {
    buildMonsters();
 }
 
+//Função para coletar orbe de vida
+void getLife(int x, int z){
+   cout << "Vida coletada!" << endl;
+   pLife = pLife + 5;
+   //Vida maxima = 100
+   if(pLife > 100)
+      pLife = 100;
+   
+   currentPhase->map[x][z] = 1;
+}
+
 //Função de criação do HUD
 void HUD(){
    //glBindTexture(GL_TEXTURE_2D, HUDtex);
-   /*glColor3f(1.0, 1.0, 1.0);
-   glBegin(GL_QUADS);
-   glTexCoord2f(0.0,1.0); glVertex2f(0.05, 0.05);
-   glVertex2f(1.0, 1.0);  glVertex2f(0.3, 0.05);
-   glVertex2f(1.0, 0.0);  glVertex2f(0.3, 0.15);
-   glVertex2f(0.0, 0.0);  glVertex2f(0.05, 0.15);
-   glEnd();*/
+   glColor4f(1.0, 0.0, 0.0, 0.5);
+   glRectd(lifePerc*-1, 0.02, lifePerc, -0.02);
 }
 
 void drawHUD(){
@@ -161,8 +169,11 @@ void timer(int){
 
 void idle(){
    glutPostRedisplay();
-   pLife = pLife - 0.050;
+   pLife = pLife - 0.150;
    cout << "Life: " << pLife << endl;
+   //Atualiza a porcentagem de vida do jogador pra
+   //ser mostrada na barra de vida
+   lifePerc = pLife/100;
 }
 
 //Função que cria as variáveis do jogo
@@ -258,6 +269,7 @@ void keyboard (unsigned char key, int x, int y) {
       int posZ = (int) mainChar->charz;
       switch (key) {
          case 'w':
+            //Proxima direção tenha chão
             if (currentPhase->map[posX + 1][posZ] == 1) {
                if (mainChar->direcaox != 1) {
                   mainChar->direcaox = 1;
@@ -270,6 +282,22 @@ void keyboard (unsigned char key, int x, int y) {
                   ox = mainChar->direcaox + mainChar->charx;
                   oz = mainChar->charz + mainChar->direcaoz;
                }
+            }
+
+            //Proxima direção tenha uma vida
+            if(currentPhase->map[posX + 1][posZ] == 9){
+               if (mainChar->direcaox != 1) {
+                  mainChar->direcaox = 1;
+                  mainChar->direcaoz = 0;
+               } else {
+                  mainChar->charx++;   
+               }
+               if (tipoCam == -1)
+               {
+                  ox = mainChar->direcaox + mainChar->charx;
+                  oz = mainChar->charz + mainChar->direcaoz;
+               }
+               getLife(posX+1, posZ);
             }
             break;
          case 's':
@@ -287,8 +315,25 @@ void keyboard (unsigned char key, int x, int y) {
                   oz = mainChar->charz + mainChar->direcaoz;
                }
             }
+
+             //Proxima direção tenha uma vida
+            if(currentPhase->map[posX - 1][posZ] == 9){
+               if (mainChar->direcaox != 1) {
+                  mainChar->direcaox = -1;
+                  mainChar->direcaoz = 0;
+               } else {
+                  mainChar->charx--;   
+               }
+               if (tipoCam == -1)
+               {
+                  ox = mainChar->direcaox + mainChar->charx;
+                  oz = mainChar->charz + mainChar->direcaoz;
+               }
+               getLife(posX-1, posZ);
+            }
             break;
          case 'a':
+            //Chão
             if (currentPhase->map[posX][posZ - 1] == 1) {
                if (mainChar->direcaoz != -1) {
                   mainChar->direcaox = 0;
@@ -302,8 +347,25 @@ void keyboard (unsigned char key, int x, int y) {
                   oz = mainChar->charz + mainChar->direcaoz;
                }
             }
+            //Vida
+            if (currentPhase->map[posX][posZ - 1] == 9) {
+               if (mainChar->direcaoz != -1) {
+                  mainChar->direcaox = 0;
+                  mainChar->direcaoz = -1;
+               } else {
+                  mainChar->charz--;
+               }
+               if (tipoCam == -1)
+               {
+                  ox = mainChar->direcaox + mainChar->charx;
+                  oz = mainChar->charz + mainChar->direcaoz;
+               }
+               getLife(posX,posZ-1);
+            }
+            
             break;
          case 'd':
+            //Chão
             if (currentPhase->map[posX][posZ + 1] == 1) {
                if (mainChar->direcaoz != 1) {
                   mainChar->direcaox = 0;
@@ -316,6 +378,21 @@ void keyboard (unsigned char key, int x, int y) {
                   ox = mainChar->direcaox + mainChar->charx;
                   oz = mainChar->charz + mainChar->direcaoz;
                }
+            }
+            //Vida
+            if (currentPhase->map[posX][posZ + 1] == 9) {
+               if (mainChar->direcaoz != 1) {
+                  mainChar->direcaox = 0;
+                  mainChar->direcaoz = 1;
+               } else {
+                  mainChar->charz++;
+               }
+               if (tipoCam == -1)
+               {
+                  ox = mainChar->direcaox + mainChar->charx;
+                  oz = mainChar->charz + mainChar->direcaoz;
+               }
+               getLife(posX, posZ+1);
             }
             break;
          case 'p':
