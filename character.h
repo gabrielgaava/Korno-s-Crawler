@@ -4,27 +4,27 @@
 /* Definição das structs */
 typedef struct character {
     //Utilizada para definir a posição do personagem
-    int charx;
-    int chary;
-    int charz;
+    float charx;
+    float chary;
+    float charz;
 
     //Utilizada para definir a direção onde o personagem está de frente
     //1: frente para o positivo, 0: sem influencia, -1: frente para o negativo
-    int direcaox;
-    int direcaoy;
-    int direcaoz;
+    float direcaox;
+    float direcaoy;
+    float direcaoz;
 } character;
 
 typedef struct monster {
-    //Utilizada para definir a posição do personagem
-    int charx;
-    int chary;
-    int charz;
+    //Utilizada para definir a posição dos monstros
+    float charx;
+    float chary;
+    float charz;
 
     //Utilizada para definir a direção onde o personagem está de frente
-    int direcaox;
-    int direcaoy;
-    int direcaoz;
+    float direcaox;
+    float direcaoy;
+    float direcaoz;
 
     //Variável lógica para definir se os monstros estão vivos
     int life;
