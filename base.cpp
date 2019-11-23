@@ -8,6 +8,7 @@
 #include "map.h"
 #include "character.h"
 #include <iostream>
+using namespace std;
 
 /* Declaração de Variáveis Globais */
 
@@ -27,6 +28,9 @@ int botao,estado;
 int tipoCam = 1;
 double t = 0;
 
+//Variaveis para contagem de FPS
+int initial_time = time(NULL), final_time, frame_count = 0;
+
 #ifndef DEG_TO_RAD
 #define DEG_TO_RAD 0.017453292519943295769236907684886
 #endif
@@ -37,6 +41,9 @@ void Display();
 void Mouse(int botao, int estado, int x, int y);
 void keyboard (unsigned char key, int x, int y);
 void TeclasEspeciais (int key, int x, int y);
+void HUD();
+void drawHUD();
+void timer(int);
 void buildFrame();
 
 //Função que movimenta a câmera
@@ -44,7 +51,6 @@ void moveCamera(){
    posx = 30*sin(t);
    posz = 30*cos(t);
 }
-
 
 bool enableMouseMovement = false;
 void UpdateCameraCenter(bool CheckValue) {
@@ -111,6 +117,42 @@ void buildFrame() {
    buildMonsters();
 }
 
+//Função de criação do HUD
+void HUD(){
+   //glBindTexture(GL_TEXTURE_2D, HUDtex);
+   /*glColor3f(1.0, 1.0, 1.0);
+   glBegin(GL_QUADS);
+   glTexCoord2f(0.0,1.0); glVertex2f(0.05, 0.05);
+   glVertex2f(1.0, 1.0);  glVertex2f(0.3, 0.05);
+   glVertex2f(1.0, 0.0);  glVertex2f(0.3, 0.15);
+   glVertex2f(0.0, 0.0);  glVertex2f(0.05, 0.15);
+   glEnd();*/
+}
+
+void drawHUD(){
+
+   glMatrixMode(GL_PROJECTION);
+   glPushMatrix();
+   glLoadIdentity();
+   gluOrtho2D(0.0, 1.0, 1.0, 0.0);
+
+   glMatrixMode(GL_MODELVIEW);
+   glPushMatrix();
+   glLoadIdentity();
+
+   HUD();
+
+   glMatrixMode(GL_PROJECTION);
+   glPopMatrix();
+   glMatrixMode(GL_MODELVIEW);
+   glPopMatrix();
+}
+
+void timer(int){
+   glutPostRedisplay();
+   glutTimerFunc(1000/60,timer,0);
+}
+
 //Função qeu configura o display
 void Display() {
    
@@ -159,7 +201,17 @@ void Display() {
    //----------------------------------------------------------------   
    //Executa a cena
 	//SwapBuffers dá suporte para mais de um buffer, permitindo execução de animações sem cintilações
+   drawHUD();
 	glutSwapBuffers(); 
+
+   /*frame_count++;
+   final_time = time(NULL);
+   if(final_time - initial_time > 0){
+      cout << "FPS: " << frame_count / (final_time - initial_time)  << endl;
+      frame_count = 0;
+      initial_time = final_time;
+   }
+      */
 }
 
 void Mouse(int botao, int estado, int rotation, int inclination) {
@@ -253,21 +305,6 @@ void keyboard (unsigned char key, int x, int y) {
          default:
             break;
       }
-<<<<<<< HEAD
-=======
-   } else {
-      //Caso a projeção seja 3D
-      switch(key) {
-         case 'p':
-            tipoCam *= -1;
-            adjustCamera();
-            break;
-         default:
-            break;
-      }
-   }
-
->>>>>>> faaaa5db20928dfccae0a5449b48658b40d18ec0
    glutPostRedisplay();
 }
 
@@ -317,10 +354,16 @@ int main(int argc,char **argv) {
    createMap();
    createMainChar();
 
+   //Mostra o Mapa
+	printMap();
+
    glutDisplayFunc(Display);
    glutMouseFunc(Mouse);
    glutKeyboardFunc(keyboard);
    glutSpecialFunc(TeclasEspeciais);
+
+   glutTimerFunc(0,timer,0);
+
    glutMainLoop();
    
    return 0; 

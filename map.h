@@ -11,7 +11,7 @@ typedef struct room {
 // Struct da fase
 typedef struct phase {
     int size_x, size_z;
-    int map[128][128]; // Valores possíveis: 1 => chão, 2 => parede, 0 => nada
+    int map[128][128]; // Valores possíveis: 1 => chão, 2 => parede, 9 => Vida, 0 => nada
 	int finished;
 	int numberRoom;
     room *room_list;
@@ -26,6 +26,7 @@ void createMap();
 void buildMap();
 void buildPhase();
 void printMap();
+void genereteLifes();
 
 //Definição das variáveis globais
 phase *currentPhase = NULL;
@@ -166,6 +167,25 @@ void createMap() {
 
 	//Cria as paredes em volta dos corredores e salas
 	createWall();
+
+	//Gera as vidas no jogo
+	genereteLifes();
+}
+
+//Gera as "vidas" no mapa
+void genereteLifes(){
+	for (int i = 0; i < currentPhase->size_x; i++) {
+		for (int j = 0;  j < currentPhase->size_z; j++) {
+			int x = (rand() % 100) + 1;
+			//Caso a posição seja um chão e o valor do rand tenha sido <= a 5
+			//Ele gera uma vida nesta posição
+			if(x <= 5 && currentPhase->map[i][j] == 1){
+				currentPhase->map[i][j] = 9;
+				j = j+3;
+				i = i+1;
+			}
+		}
+	}
 }
 
 void buildMap() {
@@ -191,6 +211,15 @@ void buildMap() {
 					glColor3ub(0, 255, 0);
 					glutSolidCube(1);
 					break;
+
+				case 9:
+					//Stamina
+					glTranslatef(i + 0.5, 2, j + 0.5);
+					glScalef(0.015, 0.015, 0.015);
+					glColor3ub(255,0,0);
+					glutSolidSphere(20,10,10);
+					break;
+
 				default:
 					break;
 			}
