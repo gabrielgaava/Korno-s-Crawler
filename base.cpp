@@ -89,16 +89,14 @@ void adjustCamera(){
    }
    //Camera 3D --
    else if(tipoCam < 0){
-      enableMouseMovement = true;
       projecao = 0;
       posx = mainChar->charx;
-      posz = mainChar->chary;
-      posy = 1.5;
-      Mouse(botao,estado,rotation,inclination);
-      UpdateCameraCenter(enableMouseMovement);  
+      posz = mainChar->charz;
+      posy = 2;
       lx = 0;
       ly = 1;
       lz = 0;
+      oy = 2;
    }
 }
 
@@ -172,8 +170,6 @@ void Mouse(int botao, int estado, int rotation, int inclination) {
 void keyboard (unsigned char key, int x, int y) {
    //Key - recebe o código ASCII da tecla
    //x, y - recebem as posições do mouse na tela (permite tratar os dois dispositivos)
-   
-   if (projecao == 1) {
       //Caso seja 2D
       switch (key) {
          case 'w':
@@ -183,6 +179,11 @@ void keyboard (unsigned char key, int x, int y) {
                   mainChar->direcaoz = 0;
                } else {
                   mainChar->charx++;   
+               }
+               if (tipoCam == -1)
+               {
+                  ox = mainChar->direcaox + mainChar->charx;
+                  oz = mainChar->charz + mainChar->direcaoz;
                }
             }
             break;
@@ -195,6 +196,11 @@ void keyboard (unsigned char key, int x, int y) {
                } else {
                   mainChar->charx--;
                }
+               if (tipoCam == -1)
+               {
+                  ox = mainChar->direcaox + mainChar->charx;
+                  oz = mainChar->charz + mainChar->direcaoz;
+               }
             }
             break;
          case 'a':
@@ -204,6 +210,11 @@ void keyboard (unsigned char key, int x, int y) {
                   mainChar->direcaoz = -1;
                } else {
                   mainChar->charz--;
+               }
+               if (tipoCam == -1)
+               {
+                  ox = mainChar->direcaox + mainChar->charx;
+                  oz = mainChar->charz + mainChar->direcaoz;
                }
             }
             break;
@@ -215,6 +226,11 @@ void keyboard (unsigned char key, int x, int y) {
                } else {
                   mainChar->charz++;
                }
+               if (tipoCam == -1)
+               {
+                  ox = mainChar->direcaox + mainChar->charx;
+                  oz = mainChar->charz + mainChar->direcaoz;
+               }
             }
             break;
          case 'p':
@@ -225,12 +241,6 @@ void keyboard (unsigned char key, int x, int y) {
             printf("%c ", key);
             break;
       }
-   } else {
-      //Caso a projeção seja 3D
-      switch(key) {
-      }
-   }
-
    glutPostRedisplay();
 }
 
