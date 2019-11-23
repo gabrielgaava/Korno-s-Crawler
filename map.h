@@ -1,6 +1,14 @@
 #include <stdlib.h>
 #include <GL/glut.h>
 
+#ifndef SIZE_ROOM
+#define SIZE_ROOM 10
+#endif
+
+#ifndef NUMBER_ROOM
+#define NUMBER_ROOM 10
+#endif
+
 // Struct da sala
 typedef struct room {
 	int coord_x;
@@ -17,21 +25,21 @@ typedef struct phase {
     room *room_list;
 } phase;
 
-//Definição das primitivas
-void createNewPhase();
-void createRoom(int size_room);
-void conectRoom();
+/* Definição de Variáveis Globais */
+phase *currentPhase = NULL;
+
+/* Definição dos Protótipos das Funções */
+void createPhase();
+void createRoom();
+void createHall();
 void createWall();
 void createMap();
 void buildMap();
 void buildPhase();
 void printMap();
 
-//Definição das variáveis globais
-phase *currentPhase = NULL;
-
 // Função que inicializa a struct fase
-void createNewPhase() {
+void createPhase() {
 	int i, j;
 	
 	currentPhase = new phase();
@@ -50,29 +58,32 @@ void createNewPhase() {
     currentPhase->room_list = NULL;
 
 	//Seta o numero de salas que o mapa deve ter
-	currentPhase->numberRoom = 8;
+	currentPhase->numberRoom = NUMBER_ROOM;
 
 	//Seta para 0 a finished
 	currentPhase->finished = 0;
+
+	//Cria um novo mapa
+	createMap();
 }
 
 // Função para criar uma sala, adicionando um lista de sala e set no mapa como jogável
-void createRoom(int size_room) {
+void createRoom() {
 	int i, j, x, z;
 	room *new_room = NULL, *aux = NULL;
 
 	do {
 		x = rand() % currentPhase->size_x;
-	} while (x <= size_room || x >= currentPhase->size_x - size_room - 1);
+	} while (x <= SIZE_ROOM || x >= currentPhase->size_x - SIZE_ROOM - 1);
 
 	do {
 		z = rand() % currentPhase->size_z;
-	} while (z <= size_room || z >= currentPhase->size_z - size_room - 1);
+	} while (z <= SIZE_ROOM || z >= currentPhase->size_z - SIZE_ROOM - 1);
 
-	i = (x-size_room < 0) ? (0) : (x-size_room);
-	while (i <= x+size_room && i < currentPhase->size_x) {
-		j = (z-2 < 0) ? (0) : (z-size_room);
-		while (j <= z+size_room && j < currentPhase->size_z) {
+	i = (x-SIZE_ROOM < 0) ? (0) : (x-SIZE_ROOM);
+	while (i <= x+SIZE_ROOM && i < currentPhase->size_x) {
+		j = (z-2 < 0) ? (0) : (z-SIZE_ROOM);
+		while (j <= z+SIZE_ROOM && j < currentPhase->size_z) {
 			currentPhase->map[i][j] = 1;
 			j++;
 		}
@@ -96,7 +107,7 @@ void createRoom(int size_room) {
 }
 
 // Função para criar corredor entre as salas
-void conectRoom () {
+void createHall() {
 	room *aux = NULL, *aux2 = NULL;
 	int i, j;
 
@@ -153,21 +164,21 @@ void createWall() {
 
 //Função que monta a matriz do mapa
 void createMap() {
-	int size_room = 10;
 	int i, j;
 
 	//Cria number_room salas aleatoriamente
 	for (i = 0; i < currentPhase->numberRoom; i++) {
-		createRoom(size_room);
+		createRoom();
 	}
 	
-	//Conecta as salas criadas
-	conectRoom();
+	//Conecta as salas criadas com corredores
+	createHall();
 
 	//Cria as paredes em volta dos corredores e salas
 	createWall();
 }
 
+//Função que monta os objetos do mapa
 void buildMap() {
 	int i, j;
 
@@ -204,11 +215,8 @@ void buildMap() {
 void buildPhase() {
 
 	if (currentPhase == NULL || currentPhase->finished == 1) {
-		//Cria uma nova fase
-		createNewPhase();
-
-		//Monta a matriz com sala, corredores e paredes
-		createMap();
+		//Cria uma nova fase com salas e corredores
+		createPhase();
 	}
 
 	// Monta os objetos da cena

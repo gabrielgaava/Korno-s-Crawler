@@ -2,19 +2,18 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <GL/glut.h>
 #include <math.h>
 #include <time.h>
+#include <GL/glut.h>
+#include <iostream>
 #include "map.h"
 #include "character.h"
-#include <iostream>
+#include "monster.h"
 
 /* Declaração de Variáveis Globais */
 
 //Variáveis de definição de ângulo
 int angulo1 = 0, angulo2 = 0, angulo3 = 0;
-//Variável lógica para definir o tipo de projeção (perspectuva ou ortogonal)
-int projecao=1;
 //Variáveis que definem a posição da câmera
 int posx, posy, posz;
 //Variável que define para onde a câmera olha
@@ -38,13 +37,13 @@ void Mouse(int botao, int estado, int x, int y);
 void keyboard (unsigned char key, int x, int y);
 void TeclasEspeciais (int key, int x, int y);
 void buildFrame();
+void createGame();
 
 //Função que movimenta a câmera
 void moveCamera(){
    posx = 30*sin(t);
    posz = 30*cos(t);
 }
-
 
 bool enableMouseMovement = false;
 void UpdateCameraCenter(bool CheckValue) {
@@ -70,7 +69,6 @@ void adjustCamera(){
    //Camera 2D --
    if(tipoCam > 0){ 
       enableMouseMovement = false;
-      projecao = 1;
       //Define a posição da câmera
       posx = mainChar->charx; //charx
       posy = 9;
@@ -88,7 +86,6 @@ void adjustCamera(){
    }
    //Camera 3D --
    else if(tipoCam < 0){
-      projecao = 0;
       posx = mainChar->charx;
       posz = mainChar->charz;
       posy = 2;
@@ -107,8 +104,20 @@ void buildFrame() {
    //Posiciona o jogador
    buildMainChar();
 
+   //Realiza o movimento dos monstros
+   moveMonsters();
+
    //Posiciona os monstros
    buildMonsters();
+}
+
+//Função que cria as variáveis do jogo
+void createGame() {
+   //Inicializa (ou cria uma nova) fase com salas e paredes
+   createPhase();
+
+   //Cria novos monstros
+   createMonsters();
 }
 
 //Função qeu configura o display
@@ -129,7 +138,7 @@ void Display() {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-   if (projecao==1) {
+   if (tipoCam > 0) {
 		//Define a projeção como ortogonal
       glOrtho(-10, 10, -10, 10, -10, 10);
 	} else {
@@ -253,21 +262,6 @@ void keyboard (unsigned char key, int x, int y) {
          default:
             break;
       }
-<<<<<<< HEAD
-=======
-   } else {
-      //Caso a projeção seja 3D
-      switch(key) {
-         case 'p':
-            tipoCam *= -1;
-            adjustCamera();
-            break;
-         default:
-            break;
-      }
-   }
-
->>>>>>> faaaa5db20928dfccae0a5449b48658b40d18ec0
    glutPostRedisplay();
 }
 
@@ -313,8 +307,9 @@ int main(int argc,char **argv) {
    glutCreateWindow("Korno's Crawler");
 
    //Inicializa as variáveis da Phase 1 do jogo
-   createNewPhase();
-   createMap();
+   createGame();
+
+   //Inicializa as variaveis do personagem principal
    createMainChar();
 
    glutDisplayFunc(Display);
