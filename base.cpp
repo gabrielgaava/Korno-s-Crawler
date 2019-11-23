@@ -29,6 +29,9 @@ int botao,estado;
 int tipoCam = 1;
 double t = 0;
 
+//Vida do jogador
+float pLife = 100;
+
 //Variaveis para contagem de FPS
 int initial_time = time(NULL), final_time, frame_count = 0;
 
@@ -153,7 +156,13 @@ void drawHUD(){
 
 void timer(int){
    glutPostRedisplay();
-   glutTimerFunc(1000/60,timer,0);
+   glutTimerFunc(10,timer,0);
+}
+
+void idle(){
+   glutPostRedisplay();
+   pLife = pLife - 0.050;
+   cout << "Life: " << pLife << endl;
 }
 
 //Função que cria as variáveis do jogo
@@ -216,14 +225,13 @@ void Display() {
    drawHUD();
 	glutSwapBuffers(); 
 
-   /*frame_count++;
+   frame_count++;
    final_time = time(NULL);
    if(final_time - initial_time > 0){
       cout << "FPS: " << frame_count / (final_time - initial_time)  << endl;
       frame_count = 0;
       initial_time = final_time;
    }
-      */
 }
 
 void Mouse(int botao, int estado, int rotation, int inclination) {
@@ -374,8 +382,8 @@ int main(int argc,char **argv) {
    glutMouseFunc(Mouse);
    glutKeyboardFunc(keyboard);
    glutSpecialFunc(TeclasEspeciais);
-
-   glutTimerFunc(0,timer,0);
+   glutIdleFunc(idle);
+   //glutTimerFunc(0,timer,0);
 
    glutMainLoop();
    
