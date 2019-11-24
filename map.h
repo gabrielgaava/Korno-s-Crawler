@@ -19,7 +19,9 @@ typedef struct room {
 // Struct da fase
 typedef struct phase {
     int size_x, size_z;
-    int map[128][128]; // Valores possíveis: 1 => chão, 2 => parede, 9 => Vida, 0 => nada
+	// Valores possíveis: 1 => chão, 2 => parede,  5 => Obstaculo
+	// 8 => Saída, 9 => Vida, 0 => nada
+    int map[128][128]; 
 	int finished;
 	int numberRoom;
     room *room_list;
@@ -38,7 +40,7 @@ void buildMap();
 void buildPhase();
 int verifyMapContent(int, int);
 void printMap();
-void genereteLifes();
+void genereteThingsOnMap();
 
 // Função que inicializa a struct fase
 void createPhase() {
@@ -179,12 +181,14 @@ void createMap() {
 	//Cria as paredes em volta dos corredores e salas
 	createWall();
 
-	//Gera as vidas no jogo
-	genereteLifes();
+	//Gera as "coisas" no jogo
+	genereteThingsOnMap();
 }
 
 //Gera as "vidas" no mapa
-void genereteLifes(){
+void genereteThingsOnMap(){
+
+	//Laço de População na Matriz do Mapa
 	for (int i = 0; i < currentPhase->size_x; i++) {
 		for (int j = 0;  j < currentPhase->size_z; j++) {
 			int x = (rand() % 100) + 1;
@@ -195,6 +199,32 @@ void genereteLifes(){
 				j = j+3;
 				i = i+1;
 			}
+			//Gera alguns obstaculos no mapa
+			if(x > 5 && x < 15 && currentPhase->map[i][j] == 1){
+				//Evitando criar obstaculos em corredores Horizontais
+				if(currentPhase->map[i+1][j] == 2 && currentPhase->map[i-1][j] == 2)
+					continue;
+
+				//Evitando criar obstaculos em corredores Verticais
+				if(currentPhase->map[i][j+1] == 2 && currentPhase->map[i][j-1] == 2)
+					continue;
+				
+				currentPhase->map[i][j] = 5;
+				i++;
+			}
+
+		}
+	}
+
+	//Gera uma saída
+	int haveExit = 1;
+	while(haveExit != 0){
+		int iX = rand() % 128;
+		int iZ = rand() % 128;
+		if(currentPhase->map[iX][iZ] != 0 && currentPhase->map[iX][iZ] != 2){
+			currentPhase->map[iX][iZ] = 8;
+			printf("Saida em:  %d : %d \n", iX, iZ);
+			haveExit = 0;
 		}
 	}
 }
@@ -224,12 +254,33 @@ void buildMap() {
 					glutSolidCube(1);
 					break;
 
+				case 5:
+					//Obstaculo - Agua ?
+					glTranslatef(i + 0.5, -0.2, j + 0.5);
+					glScalef(1, 0.1, 1);
+					glColor3ub(112, 207, 255);	
+					glutSolidCube(1);
+					break;
+
 				case 9:
 					//Life
 					glTranslatef(i + 0.5, 2, j + 0.5);
 					glScalef(0.015, 0.015, 0.015);
 					glColor3ub(255,0,0);
 					glutSolidSphere(20,10,10);
+
+					glTranslatef(0, -2.2, 0);
+					glScalef(66.67, 6.67, 66.67);
+					glColor3ub(70,70,70);
+					glutSolidCube(1);
+					break;
+
+				case 8:
+					//Saída
+					glTranslatef(i + 0.5, -0.2, j + 0.5);
+					glScalef(1, 0.1, 1);
+					glColor3ub(245, 51, 196);	
+					glutSolidCube(1);
 					break;
 
 				default:
