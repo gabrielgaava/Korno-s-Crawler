@@ -1,3 +1,5 @@
+// Biblioteca relacionada as funções do mapa
+
 #include <stdlib.h>
 #include <GL/glut.h>
 
