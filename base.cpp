@@ -128,7 +128,7 @@ void buildFrame() {
 
       //Posiciona os monstros
       buildMonsters();
-      
+
 }
 
 //Função para coletar orbe de vida
@@ -224,7 +224,7 @@ void timer(int){
 void idle(){
    glutPostRedisplay();
    if(!isDead){
-      pLife = pLife - 10.150;
+      pLife = pLife - 0.150;
       cout << "Life: " << pLife << endl;
       //Atualiza a porcentagem de vida do jogador pra
       //ser mostrada na barra de vida
