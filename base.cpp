@@ -463,6 +463,19 @@ void keyboard (unsigned char key, int x, int y) {
             tipoCam *= -1;
             adjustCamera();
             break;
+         
+         case 'r':
+            if(nowHud == 2){
+               //Inicializa as variáveis da Phase 1 do jogo
+               createGame();
+               //Inicializa as variaveis do personagem principal
+               createMainChar();
+               pLife = 100;
+               isDead = false;
+               nowHud = 1;
+            }
+            break;
+
          default:
             break;
       }
