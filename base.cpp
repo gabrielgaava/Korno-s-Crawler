@@ -136,6 +136,7 @@ void getLife(int x, int z){
    currentPhase->map[x][z] = 1;
 }
 
+//Função que rasteriza texto para inserir na HUD
 void drawText(const char *text, int length, float x, float y){
    glMatrixMode(GL_PROJECTION);
    double *matrix = new double[16];
@@ -156,7 +157,7 @@ void drawText(const char *text, int length, float x, float y){
    glMatrixMode(GL_MODELVIEW);
 }
 
-//Função de criação do HUD
+//Função de criação dos elementos da HUD
 void HUD(){
    //glBindTexture(GL_TEXTURE_2D, HUDtex);
    glColor4f(1.0, 0.0, 0.0, 0.5);
@@ -170,7 +171,7 @@ void HUD(){
    drawText(text2.data(), text2.size(), 6.6, 8.5);
 }
 
-
+//Função responsavel por contruir a HUD
 void drawHUD(){
 
    glMatrixMode(GL_PROJECTION);
@@ -190,11 +191,13 @@ void drawHUD(){
    glPopMatrix();
 }
 
+//Timer
 void timer(int){
    glutPostRedisplay();
    glutTimerFunc(10,timer,0);
 }
 
+//Função executada sempre que nenhuma ação é tomada naquele "quadro"
 void idle(){
    glutPostRedisplay();
    pLife = pLife - 0.150;
