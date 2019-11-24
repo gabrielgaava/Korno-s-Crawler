@@ -246,6 +246,7 @@ void buildMap() {
 					glColor3ub(70, 70, 70);	
 					glutSolidCube(1);
 					break;
+
 				case 2:
 					//Paredes
 					glTranslatef(i + 0.5, 4, j + 0.5);
@@ -257,7 +258,7 @@ void buildMap() {
 				case 5:
 					//Obstaculo - Agua ?
 					glTranslatef(i + 0.5, -0.2, j + 0.5);
-					glScalef(1, 0.1, 1);
+					glScalef(1, 4, 1);
 					glColor3ub(112, 207, 255);	
 					glutSolidCube(1);
 					break;

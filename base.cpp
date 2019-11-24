@@ -214,12 +214,6 @@ void timer(int){
 //Função executada sempre que nenhuma ação é tomada naquele "quadro"
 void idle(){
    glutPostRedisplay();
-<<<<<<< HEAD
-   pLife = pLife - 0.150;
-   //Atualiza a porcentagem de vida do jogador pra
-   //ser mostrada na barra de vida
-   lifePerc = pLife/100;
-=======
    if(!isDead && nowHud != 0){
       pLife = pLife - 0.150;
       cout << "Life: " << pLife << endl;
@@ -235,7 +229,6 @@ void idle(){
          cout << "Voce MORREU!";
       }
    }
->>>>>>> 2fdc9f50c143cad3217193dbed83a93f4a8776e7
 }
 
 //Função que cria as variáveis do jogo
