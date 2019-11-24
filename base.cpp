@@ -33,7 +33,7 @@ double t = 0;
 float pLife = 100;
 float lifePerc = 1;
 bool isDead = false;
-int nowHud = 1;
+int nowHud = 0;
 
 
 //Variaveis para contagem de FPS
@@ -116,7 +116,7 @@ void adjustCamera(){
 
 //Função que cria o Frame
 void buildFrame() {
-
+   if(nowHud != 0){
       //Constroi o mapa
       buildPhase();
 
@@ -128,7 +128,7 @@ void buildFrame() {
 
       //Posiciona os monstros
       buildMonsters();
-
+   }
 }
 
 //Função para coletar orbe de vida
@@ -178,7 +178,7 @@ void HUD(){
 }
 
 //"Tela" de Game over
-void gameOver(){
+void gameOverHUD(){
    string gameOverTxt = "G A M E - O V E R";
    glColor4f(1.0, 0.0, 0.0, 1.0);
    drawText(gameOverTxt.data(), gameOverTxt.size(), -1.5, 0);
@@ -189,6 +189,19 @@ void gameOver(){
 
    glColor4f(0.0, 0.0, 0.0,0.8);
    glRectd(-1,1,1,-1);
+}
+
+void welcomeHUD(){
+   string gameOverTxt = "Bem vindo ao KORNO'S CRAWLER!";
+   glColor4f(1.0, 0.0, 0.0, 1.0);
+   drawText(gameOverTxt.data(), gameOverTxt.size(), -3, 0);
+
+   string instTxt = "Para começar aperte <ENTER> ... e Boa Sorte.";
+   glColor4f(1.0, 1.0, 1.0, 1.0);
+   drawText(instTxt.data(), instTxt.size(), -4.5, -1);
+
+   glColor4f(0.0, 0.0, 0.0,0.8);
+   glRectd(-1,1,1,-1); 
 }
 
 //Função responsavel por contruir a HUD
@@ -203,10 +216,12 @@ void drawHUD(int hud){
    glPushMatrix();
    glLoadIdentity();
 
+   if(hud == 0)
+      welcomeHUD();
    if(hud == 1)
       HUD();
    if(hud == 2)
-      gameOver();
+      gameOverHUD();
 
    glMatrixMode(GL_PROJECTION);
    glPopMatrix();
@@ -223,7 +238,7 @@ void timer(int){
 //Função executada sempre que nenhuma ação é tomada naquele "quadro"
 void idle(){
    glutPostRedisplay();
-   if(!isDead){
+   if(!isDead && nowHud != 0){
       pLife = pLife - 0.150;
       cout << "Life: " << pLife << endl;
       //Atualiza a porcentagem de vida do jogador pra
@@ -474,6 +489,11 @@ void keyboard (unsigned char key, int x, int y) {
                isDead = false;
                nowHud = 1;
             }
+            break;
+         
+         case 13:
+            if(nowHud == 0)
+               nowHud = 1;
             break;
 
          default:
