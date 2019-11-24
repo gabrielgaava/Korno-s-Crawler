@@ -32,6 +32,9 @@ double t = 0;
 //Vida do jogador
 float pLife = 100;
 float lifePerc = 1;
+bool isDead = false;
+int nowHud = 0;
+
 
 //Variaveis para contagem de FPS
 int initial_time = time(NULL), final_time, frame_count = 0;
@@ -47,7 +50,8 @@ void Mouse(int botao, int estado, int x, int y);
 void keyboard (unsigned char key, int x, int y);
 void TeclasEspeciais (int key, int x, int y);
 void HUD();
-void drawHUD();
+void gameOver();
+void drawHUD(int hud);
 void timer(int);
 void buildFrame();
 void createGame();
@@ -89,17 +93,19 @@ void adjustCamera(){
 
 //Função que cria o Frame
 void buildFrame() {
-   //Constroi o mapa
-   buildPhase();
+   if(nowHud != 0){
+      //Constroi o mapa
+      buildPhase();
 
-   //Posiciona o jogador
-   buildMainChar();
+      //Posiciona o jogador
+      buildMainChar();
 
-   //Realiza o movimento dos monstros
-   moveMonsters();
+      //Realiza o movimento dos monstros
+      moveMonsters();
 
-   //Posiciona os monstros
-   buildMonsters();
+      //Posiciona os monstros
+      buildMonsters();
+   }
 }
 
 //Função para coletar orbe de vida
@@ -136,19 +142,46 @@ void drawText(const char *text, int length, float x, float y){
 //Função de criação dos elementos da HUD
 void HUD(){
    //glBindTexture(GL_TEXTURE_2D, HUDtex);
-   glColor4f(1.0, 0.0, 0.0, 0.5);
+   glColor4f(1.0, 0.0, 0.0, 1.0);
    glRectd(lifePerc*-1, 0.02, lifePerc, -0.02);
 
    string text = "Vida: "+ to_string(pLife) +"%";
    drawText(text.data(), text.size(), 6, 9);
 
-   glColor4f(1.0, 1.0, 1.0, 0.5);
+   glColor4f(1.0, 1.0, 1.0, 1.0);
    string text2 = "Balas:  10/10";
    drawText(text2.data(), text2.size(), 6.6, 8.5);
 }
 
+//"Tela" de Game over
+void gameOverHUD(){
+   string gameOverTxt = "G A M E - O V E R";
+   glColor4f(1.0, 0.0, 0.0, 1.0);
+   drawText(gameOverTxt.data(), gameOverTxt.size(), -1.5, 0);
+
+   string instTxt = "Aperte <R> para comecar novamente";
+   glColor4f(1.0, 1.0, 1.0, 1.0);
+   drawText(instTxt.data(), instTxt.size(), -3.2, -1);
+
+   glColor4f(0.0, 0.0, 0.0,0.8);
+   glRectd(-1,1,1,-1);
+}
+
+void welcomeHUD(){
+   string gameOverTxt = "Bem vindo ao KORNO'S CRAWLER!";
+   glColor4f(1.0, 0.0, 0.0, 1.0);
+   drawText(gameOverTxt.data(), gameOverTxt.size(), -3, 0);
+
+   string instTxt = "Para começar aperte <ENTER> ... e Boa Sorte.";
+   glColor4f(1.0, 1.0, 1.0, 1.0);
+   drawText(instTxt.data(), instTxt.size(), -4.5, -1);
+
+   glColor4f(0.0, 0.0, 0.0,0.8);
+   glRectd(-1,1,1,-1); 
+}
+
 //Função responsavel por contruir a HUD
-void drawHUD(){
+void drawHUD(int hud){
 
    glMatrixMode(GL_PROJECTION);
    glPushMatrix();
@@ -159,7 +192,12 @@ void drawHUD(){
    glPushMatrix();
    glLoadIdentity();
 
-   HUD();
+   if(hud == 0)
+      welcomeHUD();
+   if(hud == 1)
+      HUD();
+   if(hud == 2)
+      gameOverHUD();
 
    glMatrixMode(GL_PROJECTION);
    glPopMatrix();
@@ -176,10 +214,28 @@ void timer(int){
 //Função executada sempre que nenhuma ação é tomada naquele "quadro"
 void idle(){
    glutPostRedisplay();
+<<<<<<< HEAD
    pLife = pLife - 0.150;
    //Atualiza a porcentagem de vida do jogador pra
    //ser mostrada na barra de vida
    lifePerc = pLife/100;
+=======
+   if(!isDead && nowHud != 0){
+      pLife = pLife - 0.150;
+      cout << "Life: " << pLife << endl;
+      //Atualiza a porcentagem de vida do jogador pra
+      //ser mostrada na barra de vida
+      lifePerc = pLife/100;
+
+      if(pLife <= 0){
+         isDead = true;
+         pLife = 0;
+         lifePerc = 0;
+         nowHud = 2;
+         cout << "Voce MORREU!";
+      }
+   }
+>>>>>>> 2fdc9f50c143cad3217193dbed83a93f4a8776e7
 }
 
 //Função que cria as variáveis do jogo
@@ -245,7 +301,7 @@ void Display() {
    //----------------------------------------------------------------   
    //Executa a cena
 	//SwapBuffers dá suporte para mais de um buffer, permitindo execução de animações sem cintilações
-   drawHUD();
+   drawHUD(nowHud);
 	glutSwapBuffers(); 
 
    frame_count++;
@@ -412,6 +468,24 @@ void keyboard (unsigned char key, int x, int y) {
             }
             adjustCamera();
             break;
+         
+         case 'r':
+            if(nowHud == 2){
+               //Inicializa as variáveis da Phase 1 do jogo
+               createGame();
+               //Inicializa as variaveis do personagem principal
+               createMainChar();
+               pLife = 100;
+               isDead = false;
+               nowHud = 1;
+            }
+            break;
+         
+         case 13:
+            if(nowHud == 0)
+               nowHud = 1;
+            break;
+
          default:
             break;
       }
@@ -452,7 +526,7 @@ int main(int argc,char **argv) {
    //Define as características do espaço vetorial
 	//Nesse caso, permite animações (sem cintilações), cores compostas por (R, G, B)
 	//Buffer que permite trabalhar com profundidade e elimina faces escondidas
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 
    //Define a janela
    glutInitWindowSize(800, 800);
@@ -467,6 +541,9 @@ int main(int argc,char **argv) {
 
    //Mostra o Mapa
 	printMap();
+
+   //Opacidade nas cores
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
    glutDisplayFunc(Display);
    glutMouseFunc(Mouse);
