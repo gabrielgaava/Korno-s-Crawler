@@ -10,6 +10,11 @@
 #include "character.h"
 #include "monster.h"
 #include <iostream>
+
+//Para a Engine de Som
+#include "assets/soundEngine/irrKlang.h"
+#pragma comment(lib, "irrKlang.lib")
+using namespace irrklang;
 using namespace std;
 
 
@@ -34,6 +39,9 @@ float pLife = 100;
 float lifePerc = 1;
 bool isDead = false;
 int nowHud = 0;
+
+//Device de Som
+ISoundEngine* engine = createIrrKlangDevice();
 
 
 //Variaveis para contagem de FPS
@@ -115,6 +123,8 @@ void getLife(int x, int z){
    if(pLife > 100)
       pLife = 100;
    
+   // play some sound stream, looped, in 3D space
+   ISound* music = engine->play2D("assets/life.wav", false);
    currentPhase->map[x][z] = 1;
 }
 
@@ -510,6 +520,15 @@ void TeclasEspeciais (int key, int x, int y) {
 }
 
 int main(int argc,char **argv) {
+
+   //Sound Engine
+   if (!engine)
+      return 0; // error starting up the engine 
+
+   // play some sound stream, looped, in 3D space
+   ISound* music = engine->play2D("assets/m1.mp3", true);
+   
+
    //Iniatizes glut
 	glutInit(&argc, argv);
 
