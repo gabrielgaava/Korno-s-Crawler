@@ -3,13 +3,18 @@
 #include <stdlib.h>
 #include <GL/glut.h>
 
-#ifndef SIZE_ROOM
+// Definição de constantes do programa
 #define SIZE_ROOM 10
-#endif
-
-#ifndef NUMBER_ROOM
 #define NUMBER_ROOM 10
-#endif
+
+// Valores possíveis para o mapa
+#define OBSTACLE -2
+#define WALL -1
+#define NOTHING 0
+#define FLOOR 1
+#define EXIT 8
+#define LIFE_SPHERE 9
+#define PLAYABLE 32767
 
 // Struct da sala
 typedef struct room {
@@ -21,9 +26,8 @@ typedef struct room {
 // Struct da fase
 typedef struct phase {
     int size_x, size_z;
-	// Valores possíveis: 1 => chão, 2 => parede,  5 => Obstaculo
-	// 8 => Saída, 9 => Vida, 0 => nada
-    int map[128][128]; 
+	// Valores possíveis: ver define
+    short map[128][128];
 	int finished;
 	int numberRoom;
     room *room_list;
@@ -38,8 +42,10 @@ void createRoom();
 void createHall();
 void createWall();
 void createMap();
-void buildMap();
+void createExit();
 void buildPhase();
+void buildMap();
+void buildFloor();
 int verifyMapContent(int, int);
 void printMap();
 void genereteThingsOnMap();
@@ -71,6 +77,15 @@ void createPhase() {
 
 	//Cria um novo mapa
 	createMap();
+
+	// Set para 0 a área jogável. Finalidade de manter na matriz só coisas do mapa
+	for (i=0; i < currentPhase->size_x; i++) {
+		for (j=0; j < currentPhase->size_z; j++) {
+			if (currentPhase->map[i][j] == PLAYABLE) {
+				currentPhase->map[i][j] = 0;
+			}
+		}
+	}
 }
 
 // Função para criar uma sala, adicionando um lista de sala e set no mapa como jogável
@@ -90,7 +105,7 @@ void createRoom() {
 	while (i <= x+SIZE_ROOM && i < currentPhase->size_x) {
 		j = (z-2 < 0) ? (0) : (z-SIZE_ROOM);
 		while (j <= z+SIZE_ROOM && j < currentPhase->size_z) {
-			currentPhase->map[i][j] = 1;
+			currentPhase->map[i][j] = PLAYABLE;
 			j++;
 		}
 		i++;
@@ -119,27 +134,36 @@ void createHall() {
 
 	aux = currentPhase->room_list;
 	for (aux2 = aux->next; aux2 != NULL; aux2 = aux2->next) {
+
 		j = aux->coord_z;
 		
 		//Criando corredor em X
 		if (aux->coord_x < aux2->coord_x) {
 			for (i = aux->coord_x; i <= aux2->coord_x; i++) {
-				currentPhase->map[i][j] = 1;
+				if (currentPhase->map[i][j] == 0) {
+					currentPhase->map[i][j] = FLOOR;
+				}
 			}
 		} else {
 			for (i=aux->coord_x; i >= aux2->coord_x; i--) {
-				currentPhase->map[i][j] = 1;
+				if (currentPhase->map[i][j] == 0) {
+					currentPhase->map[i][j] = FLOOR;
+				}
 			}
 		}
 		
 		//Criando corredor em Y
 		if (aux->coord_z < aux2->coord_z) {
 			for (j = aux->coord_z; j <= aux2->coord_z; j++) {
-				currentPhase->map[i][j] = 1;
+				if (currentPhase->map[i][j] == 0) {
+					currentPhase->map[i][j] = FLOOR;
+				}
 			}
 		} else {
 			for (j = aux->coord_z; j >= aux2->coord_z; j--) {
-				currentPhase->map[i][j] = 1;
+				if (currentPhase->map[i][j] == 0) {
+					currentPhase->map[i][j] = FLOOR;
+				}
 			}	
 		}
 	}
@@ -154,12 +178,12 @@ void createWall() {
 	//Percorre a matriz em busca do chão para colocar paredes em volta
 	for (i = 1; i < size_x - 1; i++) {
 		for (j = 1; j < size_z - 1; j++) {
-			if (currentPhase->map[i][j] == 1) {
+			if (currentPhase->map[i][j] == FLOOR || currentPhase->map[i][j] == PLAYABLE) {
 				//Verifica as bordas da posição da matriz
 				for (auxi = i-1; auxi <= i+1; auxi++) {
 					for (auxj = j-1; auxj <= j+1; auxj++){
 						if (currentPhase->map[auxi][auxj] == 0) {
-							currentPhase->map[auxi][auxj] = 2;
+							currentPhase->map[auxi][auxj] = WALL;
 						}
 					}
 				}
@@ -185,6 +209,9 @@ void createMap() {
 
 	//Gera as "coisas" no jogo
 	genereteThingsOnMap();
+
+	//Gera a saída do mapa
+	createExit();
 }
 
 //Gera as "vidas" no mapa
@@ -196,36 +223,39 @@ void genereteThingsOnMap(){
 			int x = (rand() % 100) + 1;
 			//Caso a posição seja um chão e o valor do rand tenha sido <= a 5
 			//Ele gera uma vida nesta posição
-			if(x <= 5 && currentPhase->map[i][j] == 1){
-				currentPhase->map[i][j] = 9;
+			if(x <= 5 && currentPhase->map[i][j] == PLAYABLE){
+				currentPhase->map[i][j] = LIFE_SPHERE;
 				j = j+3;
 				i = i+1;
 			}
 			//Gera alguns obstaculos no mapa
-			if(x > 5 && x < 15 && currentPhase->map[i][j] == 1){
+			if(x > 5 && x < 15 && currentPhase->map[i][j] == PLAYABLE){
 				//Evitando criar obstaculos em corredores Horizontais
-				if(currentPhase->map[i+1][j] == 2 && currentPhase->map[i-1][j] == 2)
+				if(currentPhase->map[i+1][j] == WALL && currentPhase->map[i-1][j] == WALL)
 					continue;
 
 				//Evitando criar obstaculos em corredores Verticais
-				if(currentPhase->map[i][j+1] == 2 && currentPhase->map[i][j-1] == 2)
+				if(currentPhase->map[i][j+1] == WALL && currentPhase->map[i][j-1] == WALL)
 					continue;
 				
-				currentPhase->map[i][j] = 5;
+				currentPhase->map[i][j] = OBSTACLE;
 				i++;
 			}
 
 		}
 	}
+}
 
+// Função que cria uma saída no mapa
+void createExit() {
 	//Gera uma saída
 	int haveExit = 1;
 	while(haveExit != 0){
 		int iX = rand() % 128;
 		int iZ = rand() % 128;
-		if(currentPhase->map[iX][iZ] != 0 && currentPhase->map[iX][iZ] != 2){
-			currentPhase->map[iX][iZ] = 8;
-			printf("Saida em:  %d : %d \n", iX, iZ);
+		if(currentPhase->map[iX][iZ] != 0 && currentPhase->map[iX][iZ] != WALL){
+			currentPhase->map[iX][iZ] = EXIT;
+			printf("[DBG] Saida em:  %d : %d \n", iX, iZ);
 			haveExit = 0;
 		}
 	}
@@ -237,53 +267,57 @@ void buildMap() {
 
 	for (i = 0; i < currentPhase->size_x; i++) {
 		for (j = 0;  j < currentPhase->size_z; j++) {
-			
-			glPushMatrix();
 
 			switch (currentPhase->map[i][j]) {
-				case 1:
-					//Chão
-					glTranslatef(i + 0.5, -0.2, j + 0.5);
-					glScalef(1, 0.1, 1);
-					glColor3ub(70, 70, 70);	
-					glutSolidCube(1);
-					break;
-
-				case 2:
+				case WALL:
 					//Paredes
-					glTranslatef(i + 0.5, 4, j + 0.5);
-					glScalef(1, 8, 1);
-					glColor3ub(0, 255, 0);
-					glutSolidCube(1);
+					glPushMatrix();
+						glTranslatef(i + 0.5, 4, j + 0.5);
+						glScalef(1, 8, 1);
+						glColor3ub(0, 255, 0);
+						glutSolidCube(1);
+					glPopMatrix();
 					break;
 
-				case 5:
+				case FLOOR:
+					//Chão
+					glColor3ub(70, 70, 70);
+					glBegin(GL_QUADS);
+						glVertex3f(i, 0, j);
+						glVertex3f(i, 0, j + 1);
+						glVertex3f(i + 1, 0, j + 1);
+						glVertex3f(i + 1, 0, j);
+					glEnd();
+					break;
+
+				case OBSTACLE:
 					//Obstaculo - Agua ?
-					glTranslatef(i + 0.5, -0.2, j + 0.5);
-					glScalef(1, 4, 1);
-					glColor3ub(112, 207, 255);	
-					glutSolidCube(1);
+					glPushMatrix();
+						glTranslatef(i + 0.5, -0.2, j + 0.5);
+						glScalef(1, 4, 1);
+						glColor3ub(112, 207, 255);	
+						glutSolidCube(1);
+					glPopMatrix();
 					break;
 
-				case 9:
+				case LIFE_SPHERE:
 					//Life
-					glTranslatef(i + 0.5, 2, j + 0.5);
-					glScalef(0.015, 0.015, 0.015);
-					glColor3ub(255,0,0);
-					glutSolidSphere(20,10,10);
-
-					glTranslatef(0, -2.2, 0);
-					glScalef(66.67, 6.67, 66.67);
-					glColor3ub(70,70,70);
-					glutSolidCube(1);
+					glPushMatrix();
+						glTranslatef(i + 0.5, 2, j + 0.5);
+						glScalef(0.015, 0.015, 0.015);
+						glColor3ub(255,0,0);
+						glutSolidSphere(20,10,10);
+					glPopMatrix();
 					break;
 
-				case 8:
+				case EXIT:
 					//Saída
-					glTranslatef(i + 0.5, -0.2, j + 0.5);
-					glScalef(1, 0.1, 1);
-					glColor3ub(245, 51, 196);	
-					glutSolidCube(1);
+					glPushMatrix();
+						glTranslatef(i + 0.5, -0.2, j + 0.5);
+						glScalef(1, 0.1, 1);
+						glColor3ub(245, 51, 196);	
+						glutSolidCube(1);
+					glPopMatrix();
 					break;
 
 				default:
@@ -303,6 +337,9 @@ void buildPhase() {
 		createPhase();
 	}
 
+	// Monta o chão para o usuário
+	buildFloor();
+
 	// Monta os objetos da cena
 	buildMap();
 }
@@ -310,6 +347,26 @@ void buildPhase() {
 //Função que verifica o conteudo do mapa no ponto (X,Z)
 int verifyMapContent(int x, int z) {
 	return currentPhase->map[x][z];
+}
+
+// Função que cria o chão
+void buildFloor() {
+	int x, z;
+	room *aux = NULL;
+
+	// Criando o chão das salas
+	for (aux = currentPhase->room_list; aux != NULL; aux = aux->next) {
+		x = aux->coord_x;
+		z = aux->coord_z;
+
+		glColor3ub(70, 70, 70);
+		glBegin(GL_QUADS);
+			glVertex3f(x - SIZE_ROOM, 0, z - SIZE_ROOM);
+			glVertex3f(x - SIZE_ROOM, 0, z + SIZE_ROOM + 1);
+			glVertex3f(x + SIZE_ROOM + 1, 0, z + SIZE_ROOM + 1);
+			glVertex3f(x + SIZE_ROOM + 1, 0, z - SIZE_ROOM);
+		glEnd();
+	}
 }
 
 /* Funções de DEBUG */
@@ -322,6 +379,12 @@ void printMap(){
 			switch (currentPhase->map[i][j]) {
 				case 0:
 					printf("-");
+					break;
+				case WALL:
+					printf("W");
+					break;
+				case PLAYABLE:
+					printf("F");
 					break;
 				default:
 					printf("%d", currentPhase->map[i][j]);
