@@ -148,7 +148,6 @@ void moveMonsters() {
             //Se estiver no campo de visão percorre o caminho
             if (distance < 25){
                 if (distance == 1) {
-                    puts("[DBG] Dano no player");
                     continue;
                 }
 

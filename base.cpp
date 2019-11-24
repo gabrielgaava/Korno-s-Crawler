@@ -18,15 +18,15 @@ using namespace std;
 //Variáveis de definição de ângulo
 int angulo1 = 0, angulo2 = 0, angulo3 = 0;
 //Variáveis que definem a posição da câmera
-int posx, posy, posz;
+float posx, posy, posz;
 //Variável que define para onde a câmera olha
-int oy, ox, oz;
+float oy, ox, oz;
 //Variável que definem qual eixo estará na vertical do monitor
 int lx, ly,lz;
 double rotation, inclination;
 int botao,estado;
 //Variável que definee o tipo da câmera
-int tipoCam = 1;
+int tipoCam = 1,rot = 0;
 double t = 0;
 
 //Vida do jogador
@@ -53,36 +53,11 @@ void buildFrame();
 void createGame();
 void getLife(int x, int z);
 
-//Função que movimenta a câmera
-void moveCamera(){
-   posx = 30*sin(t);
-   posz = 30*cos(t);
-}
-
-bool enableMouseMovement = false;
-void UpdateCameraCenter(bool CheckValue) {
-  if(CheckValue) {
-    if(rotation >= 360)
-      rotation -= 360;
-    if(rotation < 0)
-      rotation += 360;
-    
-    if(inclination <= 45)
-      inclination = 45;
-    if(inclination >= 135)
-      inclination = 135;
-  }
-  
-  ox = (sin(DEG_TO_RAD * inclination) * sin(DEG_TO_RAD * rotation) + posx);
-  oy = (sin(DEG_TO_RAD * inclination) * cos(DEG_TO_RAD * rotation) + posy);
-  oz = (cos(DEG_TO_RAD * inclination) + posz);
-}
 
 //Função que ajusta a câmera
 void adjustCamera(){
    //Camera 2D --
    if(tipoCam > 0){ 
-      enableMouseMovement = false;
       //Define a posição da câmera
       posx = mainChar->charx; //charx
       posy = 9;
@@ -107,6 +82,8 @@ void adjustCamera(){
       ly = 1;
       lz = 0;
       oy = 2;
+      ox = cos(DEG_TO_RAD*rot) + posx ;
+      oz = sin(DEG_TO_RAD*rot) + posz ;
    }
 }
 
@@ -127,7 +104,6 @@ void buildFrame() {
 
 //Função para coletar orbe de vida
 void getLife(int x, int z){
-   cout << "Vida coletada!" << endl;
    pLife = pLife + 5;
    //Vida maxima = 100
    if(pLife > 100)
@@ -201,7 +177,6 @@ void timer(int){
 void idle(){
    glutPostRedisplay();
    pLife = pLife - 0.150;
-   cout << "Life: " << pLife << endl;
    //Atualiza a porcentagem de vida do jogador pra
    //ser mostrada na barra de vida
    lifePerc = pLife/100;
@@ -239,17 +214,23 @@ void Display() {
       glOrtho(-10, 10, -10, 10, -10, 10);
 	} else {
       //Define a projeção como perspectiva
-		gluPerspective(45,1,1,150);
+		gluPerspective(
+      (45.0 * glutGet(GLUT_WINDOW_WIDTH)/glutGet(GLUT_WINDOW_HEIGHT)),
+      glutGet(GLUT_WINDOW_WIDTH)/glutGet(GLUT_WINDOW_HEIGHT),
+      glutGet(GLUT_WINDOW_WIDTH)/glutGet(GLUT_WINDOW_HEIGHT),
+      //(100.0 * Window.CurrentRatio)
+      (200.0 * glutGet(GLUT_WINDOW_WIDTH)/glutGet(GLUT_WINDOW_HEIGHT))
+    );
 
 	}
-   
+   adjustCamera();
    //glMatrixMode() define qual matriz será alterada
 	//SEMPRE defina a câmera (ortogonal ou perspectiva) na matriz MODELVIEW (onde o desenho ocorrerá)
 	glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
    
    //Chamada para ajustar a câmera de acordo com a visão atual
-   adjustCamera();    
+       
 
    //Define a pos da câmera, para onde olha e qual eixo está na vertical
    gluLookAt(posx, posy, posz, ox, oy, oz, lx, ly, lz);
@@ -300,134 +281,135 @@ void keyboard (unsigned char key, int x, int y) {
       int posZ = (int) mainChar->charz;
       switch (key) {
          case 'w':
-            //Proxima direção tenha chão
-            if (currentPhase->map[posX + 1][posZ] == 1) {
-               if (mainChar->direcaox != 1) {
-                  mainChar->direcaox = 1;
-                  mainChar->direcaoz = 0;
-               } else {
-                  mainChar->charx++;   
-               }
-               if (tipoCam == -1)
-               {
-                  ox = mainChar->direcaox + mainChar->charx;
-                  oz = mainChar->charz + mainChar->direcaoz;
+            if(tipoCam >0){
+               //Proxima direção tenha chão
+               if (currentPhase->map[posX + 1][posZ] == 1 || currentPhase->map[posX + 1][posZ] == 9) {
+                  if (mainChar->direcaox != 1) {
+                     mainChar->direcaox = 1;
+                     mainChar->direcaoz = 0;
+                  } else {
+                     mainChar->charx++;   
+                  }
+               //Proxima direção tenha uma vida
+                  if(currentPhase->map[posX + 1][posZ] == 9)
+                   getLife(posX+1, posZ);
                }
             }
-
-            //Proxima direção tenha uma vida
-            if(currentPhase->map[posX + 1][posZ] == 9){
-               if (mainChar->direcaox != 1) {
-                  mainChar->direcaox = 1;
-                  mainChar->direcaoz = 0;
-               } else {
-                  mainChar->charx++;   
+            else{
+               if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] == 1){
+                  mainChar->charx = ox;
+                  mainChar->charz = oz;
+                  
                }
-               if (tipoCam == -1)
-               {
-                  ox = mainChar->direcaox + mainChar->charx;
-                  oz = mainChar->charz + mainChar->direcaoz;
+               if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] == 9){
+                  mainChar->charx = ox;
+                  mainChar->charz = oz;
+                  getLife((int)round(mainChar->charx),(int)round(mainChar->charz));
+                  
                }
-               getLife(posX+1, posZ);
+               adjustCamera();
+               
             }
             break;
          case 's':
-            if (currentPhase->map[posX - 1][posZ] == 1) {
-               
-               if (mainChar->direcaox != -1) {
-                  mainChar->direcaox = -1;
-                  mainChar->direcaoz = 0;
-               } else {
-                  mainChar->charx--;
-               }
-               if (tipoCam == -1)
-               {
-                  ox = mainChar->direcaox + mainChar->charx;
-                  oz = mainChar->charz + mainChar->direcaoz;
+            if(tipoCam>0){
+               if (currentPhase->map[posX + 1][posZ] == 1 || currentPhase->map[posX + 1][posZ] == 9) {
+                  if (mainChar->direcaox != -1) {
+                     mainChar->direcaox = -1;
+                     mainChar->direcaoz = 0;
+                  } else {
+                     mainChar->charx--;
+                  }
+                  if(currentPhase->map[posX + 1][posZ] == 9)
+                     getLife(posX+1, posZ);
                }
             }
-
-             //Proxima direção tenha uma vida
-            if(currentPhase->map[posX - 1][posZ] == 9){
-               if (mainChar->direcaox != 1) {
-                  mainChar->direcaox = -1;
-                  mainChar->direcaoz = 0;
-               } else {
-                  mainChar->charx--;   
+            else{
+               if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] == 1){
+                  mainChar->charx -= cos(DEG_TO_RAD*rot);
+                  mainChar->charz -= sin(DEG_TO_RAD*rot);
+                  
                }
-               if (tipoCam == -1)
-               {
-                  ox = mainChar->direcaox + mainChar->charx;
-                  oz = mainChar->charz + mainChar->direcaoz;
+               if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] == 9){
+                  mainChar->charx -= cos(DEG_TO_RAD*rot);
+                  mainChar->charz -= sin(DEG_TO_RAD*rot);
+                  getLife((int)round(mainChar->charx),(int)round(mainChar->charz));
+                  
                }
-               getLife(posX-1, posZ);
+               adjustCamera();
+               
             }
             break;
          case 'a':
             //Chão
-            if (currentPhase->map[posX][posZ - 1] == 1) {
+            if (currentPhase->map[posX][posZ - 1] == 1 && tipoCam > 0) {
                if (mainChar->direcaoz != -1) {
                   mainChar->direcaox = 0;
                   mainChar->direcaoz = -1;
                } else {
-                  mainChar->charz--;
-               }
-               if (tipoCam == -1)
-               {
-                  ox = mainChar->direcaox + mainChar->charx;
-                  oz = mainChar->charz + mainChar->direcaoz;
+                  if(tipoCam)
+                     mainChar->charz--;
                }
             }
             //Vida
-            if (currentPhase->map[posX][posZ - 1] == 9) {
+            if (currentPhase->map[posX][posZ - 1] == 9 && tipoCam > 0) {
                if (mainChar->direcaoz != -1) {
                   mainChar->direcaox = 0;
                   mainChar->direcaoz = -1;
                } else {
                   mainChar->charz--;
-               }
-               if (tipoCam == -1)
-               {
-                  ox = mainChar->direcaox + mainChar->charx;
-                  oz = mainChar->charz + mainChar->direcaoz;
+                  rot = 180;
                }
                getLife(posX,posZ-1);
             }
+            if (tipoCam < 0){
+
+                  rot -= 5;
+                  if(rot == 360){
+                     rot = 0;
+                  }
+            }
+
             
             break;
          case 'd':
             //Chão
-            if (currentPhase->map[posX][posZ + 1] == 1) {
+            if (currentPhase->map[posX][posZ + 1] == 1 && tipoCam > 0) {
                if (mainChar->direcaoz != 1) {
                   mainChar->direcaox = 0;
                   mainChar->direcaoz = 1;
                } else {
                   mainChar->charz++;
-               }
-               if (tipoCam == -1)
-               {
-                  ox = mainChar->direcaox + mainChar->charx;
-                  oz = mainChar->charz + mainChar->direcaoz;
                }
             }
             //Vida
-            if (currentPhase->map[posX][posZ + 1] == 9) {
+            if (currentPhase->map[posX][posZ + 1] == 9 && tipoCam > 0) {
                if (mainChar->direcaoz != 1) {
                   mainChar->direcaox = 0;
                   mainChar->direcaoz = 1;
                } else {
                   mainChar->charz++;
                }
-               if (tipoCam == -1)
-               {
-                  ox = mainChar->direcaox + mainChar->charx;
-                  oz = mainChar->charz + mainChar->direcaoz;
-               }
                getLife(posX, posZ+1);
+            }
+            if (tipoCam < 0){
+
+                  rot += 5;
+                  if(rot == 360){
+                     rot = 0;
+                  }
             }
             break;
          case 'p':
             tipoCam *= -1;
+            
+            if(!tipoCam){
+               rot = 0;
+            }
+            else{
+               mainChar->charx = round(mainChar->charx);
+               mainChar->charz = round(mainChar->charz);
+            }
             adjustCamera();
             break;
          default:
