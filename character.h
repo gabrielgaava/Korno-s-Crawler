@@ -1,3 +1,5 @@
+// Biblioteca relacionada as funções do personagem principal
+
 #include <stdlib.h>
 #include <GL/glut.h>
 
@@ -13,6 +15,11 @@ typedef struct character {
     float direcaox;
     float direcaoy;
     float direcaoz;
+
+    //Vida do jogador
+    float pLife = 100;
+    float lifePerc = 1;
+    bool isDead = false;
 } character;
 
 /* Definição de Variáveis Globais */
@@ -21,6 +28,7 @@ character *mainChar = NULL;
 /* Definição dos Protótipos das Funções */
 void createMainChar();
 void buildMainChar();
+void getLife(int x, int z);
 
 //Função que cria o personagem principal
 void createMainChar(){

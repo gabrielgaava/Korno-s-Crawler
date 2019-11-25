@@ -1,4 +1,4 @@
-//Código fonto do jogo Korno's Crawler
+//Código fonte do jogo Korno's Crawler
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -9,9 +9,13 @@
 #include "map.h"
 #include "character.h"
 #include "monster.h"
-#include <iostream>
-using namespace std;
+#include "hud.h"
 
+//Para a Engine de Som
+#include "assets/soundEngine/irrKlang.h"
+#pragma comment(lib, "irrKlang.lib")
+using namespace irrklang;
+using namespace std;
 
 /* Declaração de Variáveis Globais */
 
@@ -29,12 +33,8 @@ int botao,estado;
 int tipoCam = 1,rot = 0;
 double t = 0;
 
-//Vida do jogador
-float pLife = 100;
-float lifePerc = 1;
-bool isDead = false;
-int nowHud = 0;
-
+//Device de Som
+ISoundEngine* engine = createIrrKlangDevice();
 
 //Variaveis para contagem de FPS
 int initial_time = time(NULL), final_time, frame_count = 0;
@@ -49,14 +49,25 @@ void Display();
 void Mouse(int botao, int estado, int x, int y);
 void keyboard (unsigned char key, int x, int y);
 void TeclasEspeciais (int key, int x, int y);
-void HUD();
-void gameOver();
-void drawHUD(int hud);
 void timer(int);
 void buildFrame();
 void createGame();
-void getLife(int x, int z);
+void getLife(int, int);
 
+//Função para coletar orbe de vida
+void getLife(int x, int z){
+   mainChar->pLife = mainChar->pLife + 5;
+    
+   //Vida maxima = 100
+   if(mainChar->pLife > 100) {
+     mainChar->pLife = 100;
+   }
+    
+   currentPhase->map[x][z] = 0;
+
+   // play some sound stream, looped, in 3D space
+   ISound* music = engine->play2D("assets/life.wav", false);
+}
 
 //Função que ajusta a câmera
 void adjustCamera(){
@@ -79,15 +90,20 @@ void adjustCamera(){
    }
    //Camera 3D --
    else if(tipoCam < 0){
+      // Define a posição da câmera 
       posx = mainChar->charx;
-      posz = mainChar->charz;
       posy = 2;
+      posz = mainChar->charz;
+
+      //Define onde a lente da câmera estará apontada
+      ox = cos(DEG_TO_RAD*rot) + posx ;
+      oy = 2;
+      oz = sin(DEG_TO_RAD*rot) + posz ;
+
+      // Define que eixo vai estar a horizontal
       lx = 0;
       ly = 1;
       lz = 0;
-      oy = 2;
-      ox = cos(DEG_TO_RAD*rot) + posx ;
-      oz = sin(DEG_TO_RAD*rot) + posz ;
    }
 }
 
@@ -108,103 +124,6 @@ void buildFrame() {
    }
 }
 
-//Função para coletar orbe de vida
-void getLife(int x, int z){
-   pLife = pLife + 5;
-   //Vida maxima = 100
-   if(pLife > 100)
-      pLife = 100;
-   
-   currentPhase->map[x][z] = 1;
-}
-
-//Função que rasteriza texto para inserir na HUD
-void drawText(const char *text, int length, float x, float y){
-   glMatrixMode(GL_PROJECTION);
-   double *matrix = new double[16];
-   glGetDoublev(GL_PROJECTION_MATRIX, matrix);
-   glLoadIdentity();
-   glOrtho(-10, 10, -10, 10, -10, 10);
-   glMatrixMode(GL_MODELVIEW);
-   glLoadIdentity();
-   glPushMatrix();
-   glLoadIdentity();
-   glRasterPos2f(x,y);
-   for(int i = 0; i < length; i++){
-      glutBitmapCharacter(GLUT_BITMAP_9_BY_15, (int)text[i]);
-   }
-   glPopMatrix();
-   glMatrixMode(GL_PROJECTION);
-   glLoadMatrixd(matrix);
-   glMatrixMode(GL_MODELVIEW);
-}
-
-//Função de criação dos elementos da HUD
-void HUD(){
-   //glBindTexture(GL_TEXTURE_2D, HUDtex);
-   glColor4f(1.0, 0.0, 0.0, 1.0);
-   glRectd(lifePerc*-1, 0.02, lifePerc, -0.02);
-
-   string text = "Vida: "+ to_string(pLife) +"%";
-   drawText(text.data(), text.size(), 6, 9);
-
-   glColor4f(1.0, 1.0, 1.0, 1.0);
-   string text2 = "Balas:  10/10";
-   drawText(text2.data(), text2.size(), 6.6, 8.5);
-}
-
-//"Tela" de Game over
-void gameOverHUD(){
-   string gameOverTxt = "G A M E - O V E R";
-   glColor4f(1.0, 0.0, 0.0, 1.0);
-   drawText(gameOverTxt.data(), gameOverTxt.size(), -1.5, 0);
-
-   string instTxt = "Aperte <R> para comecar novamente";
-   glColor4f(1.0, 1.0, 1.0, 1.0);
-   drawText(instTxt.data(), instTxt.size(), -3.2, -1);
-
-   glColor4f(0.0, 0.0, 0.0,0.8);
-   glRectd(-1,1,1,-1);
-}
-
-void welcomeHUD(){
-   string gameOverTxt = "Bem vindo ao KORNO'S CRAWLER!";
-   glColor4f(1.0, 0.0, 0.0, 1.0);
-   drawText(gameOverTxt.data(), gameOverTxt.size(), -3, 0);
-
-   string instTxt = "Para começar aperte <ENTER> ... e Boa Sorte.";
-   glColor4f(1.0, 1.0, 1.0, 1.0);
-   drawText(instTxt.data(), instTxt.size(), -4.5, -1);
-
-   glColor4f(0.0, 0.0, 0.0,0.8);
-   glRectd(-1,1,1,-1); 
-}
-
-//Função responsavel por contruir a HUD
-void drawHUD(int hud){
-
-   glMatrixMode(GL_PROJECTION);
-   glPushMatrix();
-   glLoadIdentity();
-   gluOrtho2D(0.0, 1.0, 1.0, 0.0);
-
-   glMatrixMode(GL_MODELVIEW);
-   glPushMatrix();
-   glLoadIdentity();
-
-   if(hud == 0)
-      welcomeHUD();
-   if(hud == 1)
-      HUD();
-   if(hud == 2)
-      gameOverHUD();
-
-   glMatrixMode(GL_PROJECTION);
-   glPopMatrix();
-   glMatrixMode(GL_MODELVIEW);
-   glPopMatrix();
-}
-
 //Timer
 void timer(int){
    glutPostRedisplay();
@@ -214,17 +133,17 @@ void timer(int){
 //Função executada sempre que nenhuma ação é tomada naquele "quadro"
 void idle(){
    glutPostRedisplay();
-   if(!isDead && nowHud != 0){
-      pLife = pLife - 0.150;
-      cout << "Life: " << pLife << endl;
+   if(!mainChar->isDead && nowHud != 0){
+      //mainChar->pLife = mainChar->pLife - 0.150;
+      //cout << "Life: " << mainChar->pLife << endl;
       //Atualiza a porcentagem de vida do jogador pra
       //ser mostrada na barra de vida
-      lifePerc = pLife/100;
+      mainChar->lifePerc = mainChar->pLife/100;
 
-      if(pLife <= 0){
-         isDead = true;
-         pLife = 0;
-         lifePerc = 0;
+      if(mainChar->pLife <= 0){
+         mainChar->isDead = true;
+         mainChar->pLife = 0;
+         mainChar->lifePerc = 0;
          nowHud = 2;
          cout << "Voce MORREU!";
       }
@@ -272,14 +191,14 @@ void Display() {
     );
 
 	}
+
+   //Chamada para ajustar a câmera de acordo com a visão atual
    adjustCamera();
+
    //glMatrixMode() define qual matriz será alterada
 	//SEMPRE defina a câmera (ortogonal ou perspectiva) na matriz MODELVIEW (onde o desenho ocorrerá)
 	glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
-   
-   //Chamada para ajustar a câmera de acordo com a visão atual
-       
 
    //Define a pos da câmera, para onde olha e qual eixo está na vertical
    gluLookAt(posx, posy, posz, ox, oy, oz, lx, ly, lz);
@@ -291,12 +210,12 @@ void Display() {
    //Chamada para Função que desenha o objeto/cena...
    //----------------------------------------------------------------
    buildFrame();
-   //----------------------------------------------------------------   
-   //Executa a cena
-	//SwapBuffers dá suporte para mais de um buffer, permitindo execução de animações sem cintilações
    drawHUD(nowHud);
+   //----------------------------------------------------------------   
+	//SwapBuffers dá suporte para mais de um buffer, permitindo execução de animações sem cintilações
 	glutSwapBuffers(); 
 
+   //Contagem de frames
    frame_count++;
    final_time = time(NULL);
    if(final_time - initial_time > 0){
@@ -320,168 +239,244 @@ void Mouse(int botao, int estado, int rotation, int inclination) {
 
 }
 
-void keyboard (unsigned char key, int x, int y) {
+void keyboard2d(unsigned char key) {
+   //Key - recebe o código ASCII da tecla
+
+   //Passa para int a posição do personagem
+   int posX = (int) mainChar->charx;
+   int posZ = (int) mainChar->charz;
+
+   switch (key) {
+      case 'w':
+         //Verifica se é possível caminhar
+         if (currentPhase->map[posX + 1][posZ] >= 0) {
+            //Verifica se o personagem está virado para a direção 
+            if (mainChar->direcaox != 1) {
+               //Se não estiver, vira o personagem
+               mainChar->direcaox = 1;
+               mainChar->direcaoz = 0;
+            } else {
+               // Se estiver, caminha e executa outras ações (se houver)
+               mainChar->charx++;
+            
+               //Se tem uma vida, atualiza
+               if(currentPhase->map[posX + 1][posZ] == LIFE_SPHERE) {
+                  getLife(posX+1, posZ);
+               }
+            }
+         }
+         break;
+
+      case 's':
+         //Lógica análoga a W
+         if (currentPhase->map[posX - 1][posZ] >= 0) {
+            if (mainChar->direcaox != -1) {
+               mainChar->direcaox = -1;
+               mainChar->direcaoz = 0;
+            } else {
+               mainChar->charx--;
+               if(currentPhase->map[posX - 1][posZ] == LIFE_SPHERE) {
+                  getLife(posX-1, posZ);
+               }
+            }
+         }
+         break;
+
+      case 'a':
+         //Lógica análoga a W
+         if (currentPhase->map[posX][posZ - 1] >= 0) {
+            if (mainChar->direcaoz != -1) {
+               mainChar->direcaox = 0;
+               mainChar->direcaoz = -1;
+            } else {
+               mainChar->charz--;
+               if(currentPhase->map[posX][posZ - 1] == LIFE_SPHERE) {
+                  getLife(posX, posZ - 1);
+               }
+            }
+         }
+         break;
+
+      case 'd':
+         //Lógica análoga a W
+         if (currentPhase->map[posX][posZ + 1] >= 0) {
+            if (mainChar->direcaoz != 1) {
+               mainChar->direcaox = 0;
+               mainChar->direcaoz = 1;
+            } else {
+               mainChar->charz++;
+               if(currentPhase->map[posX][posZ + 1] == LIFE_SPHERE) {
+                  getLife(posX, posZ + 1);
+               }
+            }
+         }
+         break;
+
+      default:
+         break;
+   }
+}
+
+void keyboard3d(unsigned char key, int x, int y) {
    //Key - recebe o código ASCII da tecla
    //x, y - recebem as posições do mouse na tela (permite tratar os dois dispositivos)
-      //Caso seja 2D
 
-      //Passa para int a posição do personagem
-      int posX = (int) mainChar->charx;
-      int posZ = (int) mainChar->charz;
-      switch (key) {
-         case 'w':
-            if(tipoCam >0){
-               //Proxima direção tenha chão
-               if (currentPhase->map[posX + 1][posZ] == 1 || currentPhase->map[posX + 1][posZ] == 9) {
-                  if (mainChar->direcaox != 1) {
-                     mainChar->direcaox = 1;
-                     mainChar->direcaoz = 0;
-                  } else {
-                     mainChar->charx++;   
-                  }
-               //Proxima direção tenha uma vida
-                  if(currentPhase->map[posX + 1][posZ] == 9)
-                   getLife(posX+1, posZ);
-               }
-            }
-            else{
-               if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] == 1){
-                  mainChar->charx = ox;
-                  mainChar->charz = oz;
-                  
-               }
-               if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] == 9){
-                  mainChar->charx = ox;
-                  mainChar->charz = oz;
-                  getLife((int)round(mainChar->charx),(int)round(mainChar->charz));
-                  
-               }
-               adjustCamera();
-               
-            }
-            break;
-         case 's':
-            if(tipoCam>0){
-               if (currentPhase->map[posX + 1][posZ] == 1 || currentPhase->map[posX + 1][posZ] == 9) {
-                  if (mainChar->direcaox != -1) {
-                     mainChar->direcaox = -1;
-                     mainChar->direcaoz = 0;
-                  } else {
-                     mainChar->charx--;
-                  }
-                  if(currentPhase->map[posX + 1][posZ] == 9)
-                     getLife(posX+1, posZ);
-               }
-            }
-            else{
-               if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] == 1){
-                  mainChar->charx -= cos(DEG_TO_RAD*rot);
-                  mainChar->charz -= sin(DEG_TO_RAD*rot);
-                  
-               }
-               if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] == 9){
-                  mainChar->charx -= cos(DEG_TO_RAD*rot);
-                  mainChar->charz -= sin(DEG_TO_RAD*rot);
-                  getLife((int)round(mainChar->charx),(int)round(mainChar->charz));
-                  
-               }
-               adjustCamera();
-               
-            }
-            break;
-         case 'a':
-            //Chão
-            if (currentPhase->map[posX][posZ - 1] == 1 && tipoCam > 0) {
-               if (mainChar->direcaoz != -1) {
-                  mainChar->direcaox = 0;
-                  mainChar->direcaoz = -1;
-               } else {
-                  if(tipoCam)
-                     mainChar->charz--;
-               }
-            }
-            //Vida
-            if (currentPhase->map[posX][posZ - 1] == 9 && tipoCam > 0) {
-               if (mainChar->direcaoz != -1) {
-                  mainChar->direcaox = 0;
-                  mainChar->direcaoz = -1;
-               } else {
+   switch(key) {
+      case 'w':
+         if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] > 0){
+            mainChar->charx = ox;
+            mainChar->charz = oz;
+         }
+         if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] == 9){
+            mainChar->charx = ox;
+            mainChar->charz = oz;
+            getLife((int)round(mainChar->charx),(int)round(mainChar->charz));
+            
+         }
+         adjustCamera();
+         break;
+
+      case 's':
+         if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] == 1){
+            mainChar->charx -= cos(DEG_TO_RAD*rot);
+            mainChar->charz -= sin(DEG_TO_RAD*rot);
+            
+         }
+         if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] == 9){
+            mainChar->charx -= cos(DEG_TO_RAD*rot);
+            mainChar->charz -= sin(DEG_TO_RAD*rot);
+            getLife((int)round(mainChar->charx),(int)round(mainChar->charz));
+            
+         }
+         adjustCamera();
+         break;
+
+      case 'a':
+         //Chão
+         /*if (currentPhase->map[(int) (mainChar->charx)][(int) (mainChar->charx - 1)] == 1 && tipoCam > 0) {
+            if (mainChar->direcaoz != -1) {
+               mainChar->direcaox = 0;
+               mainChar->direcaoz = -1;
+            } else {
+               if(tipoCam)
                   mainChar->charz--;
-                  rot = 180;
+            }
+         }
+         //Vida
+         if (currentPhase->map[posX][posZ - 1] == 9 && tipoCam > 0) {
+            if (mainChar->direcaoz != -1) {
+               mainChar->direcaox = 0;
+               mainChar->direcaoz = -1;
+            } else {
+               mainChar->charz--;
+               rot = 180;
+            }
+            getLife(posX,posZ-1);
+         }
+         if (tipoCam < 0){
+               rot -= 5;
+               if(rot == 360){
+                  rot = 0;
                }
-               getLife(posX,posZ-1);
+         }*/
+         break;
+      case 'd':
+         //Chão
+         /*if (currentPhase->map[posX][posZ + 1] == 1 && tipoCam > 0) {
+            if (mainChar->direcaoz != 1) {
+               mainChar->direcaox = 0;
+               mainChar->direcaoz = 1;
+            } else {
+               mainChar->charz++;
             }
-            if (tipoCam < 0){
-
-                  rot -= 5;
-                  if(rot == 360){
-                     rot = 0;
-                  }
+         }
+         //Vida
+         if (currentPhase->map[posX][posZ + 1] == 9 && tipoCam > 0) {
+            if (mainChar->direcaoz != 1) {
+               mainChar->direcaox = 0;
+               mainChar->direcaoz = 1;
+            } else {
+               mainChar->charz++;
             }
-
-            
-            break;
-         case 'd':
-            //Chão
-            if (currentPhase->map[posX][posZ + 1] == 1 && tipoCam > 0) {
-               if (mainChar->direcaoz != 1) {
-                  mainChar->direcaox = 0;
-                  mainChar->direcaoz = 1;
-               } else {
-                  mainChar->charz++;
+            getLife(posX, posZ+1);
+         }
+         if (tipoCam < 0){
+               rot += 5;
+               if(rot == 360){
+                  rot = 0;
                }
-            }
-            //Vida
-            if (currentPhase->map[posX][posZ + 1] == 9 && tipoCam > 0) {
-               if (mainChar->direcaoz != 1) {
-                  mainChar->direcaox = 0;
-                  mainChar->direcaoz = 1;
-               } else {
-                  mainChar->charz++;
-               }
-               getLife(posX, posZ+1);
-            }
-            if (tipoCam < 0){
+         }*/
+         break;
+      default:
+         break;
+   }
+}
 
-                  rot += 5;
-                  if(rot == 360){
-                     rot = 0;
-                  }
-            }
-            break;
-         case 'p':
-            tipoCam *= -1;
-            
-            if(!tipoCam){
-               rot = 0;
-            }
-            else{
-               mainChar->charx = round(mainChar->charx);
-               mainChar->charz = round(mainChar->charz);
-            }
-            adjustCamera();
-            break;
-         
-         case 'r':
-            if(nowHud == 2){
-               //Inicializa as variáveis da Phase 1 do jogo
-               createGame();
-               //Inicializa as variaveis do personagem principal
-               createMainChar();
-               pLife = 100;
-               isDead = false;
-               nowHud = 1;
-            }
-            break;
-         
-         case 13:
-            if(nowHud == 0)
-               nowHud = 1;
-            break;
+void keyboard(unsigned char key, int x, int y) {
+   //Key - recebe o código ASCII da tecla
+   //x, y - recebem as posições do mouse na tela (permite tratar os dois dispositivos)
 
+   //Mapeia teclas especiais que devem ser tratadas diferente dependendo do tipo da câmera
+   char special_keys[] = {'w', 's', 'a', 'd'};
+   bool isSpecialKey = false;
+   for (int i=0; i < 4; i++) {
+      if (key == special_keys[i]){
+         isSpecialKey = true;
+      }
+   }
+
+   // Verifica se é uma tecla especial
+   if (isSpecialKey) {
+      if (tipoCam > 0) {
+         // Se a câmera for 2D
+         keyboard2d(key);
+      } else {
+         // Se a câmera for 3D
+         keyboard3d(key, x, y);
+      }
+   } else {
+
+      //Se não for uma tecla especial, faz a lógica
+      switch(key) {
          default:
             break;
       }
+   }
+   
+   switch (key) {
+      case 'p':
+         tipoCam *= -1;
+         
+         if(!tipoCam){
+            rot = 0;
+         }
+         else{
+            mainChar->charx = round(mainChar->charx);
+            mainChar->charz = round(mainChar->charz);
+         }
+         adjustCamera();
+         break;
+         
+      case 'r':
+         if(nowHud == 2){
+            //Inicializa as variáveis da Phase 1 do jogo
+            createGame();
+            //Inicializa as variaveis do personagem principal
+            createMainChar();
+            mainChar->pLife = 100;
+            mainChar->isDead = false;
+            nowHud = 1;
+         }
+         break;
+      
+      case 13: //ENTER
+         if(nowHud == 0)
+            nowHud = 1;
+         break;
+         
+      default:
+         break;
+   }
    glutPostRedisplay();
 }
 
@@ -510,6 +505,14 @@ void TeclasEspeciais (int key, int x, int y) {
 }
 
 int main(int argc,char **argv) {
+
+   //Sound Engine
+   if (!engine)
+      return 0; // error starting up the engine 
+
+   // play some sound stream, looped, in 3D space
+   ISound* music = engine->play2D("assets/m1.mp3", true);
+
    //Iniatizes glut
 	glutInit(&argc, argv);
 
