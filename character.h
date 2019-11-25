@@ -20,6 +20,9 @@ typedef struct character {
     float pLife = 100;
     float lifePerc = 1;
     bool isDead = false;
+
+    //Munição
+    int ammo = 10;
 } character;
 
 /* Definição de Variáveis Globais */
@@ -29,6 +32,18 @@ character *mainChar = NULL;
 void createMainChar();
 void buildMainChar();
 void getLife(int x, int z);
+void shoot(int x, int z, int in);
+
+void shoot(int x, int z, int in){
+    
+    //criamos a bala em x,z que é onde o personagem esta
+    //criarBala(x,z);
+
+    //Depois disso, utilizamos a varivel IN pra saber se o tiro
+    //É no eixo X ou no eixo Z, dependendo de onde o personagem estiver olhando
+
+    //Só não sei ainda como fazer a bala "percorrer" o eixo IN
+}
 
 //Função que cria o personagem principal
 void createMainChar(){
