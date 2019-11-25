@@ -1,5 +1,9 @@
 // Biblioteca para as funções relacionadas aos monstros
 
+//Verifica se a biblioteca já foi importada
+#ifndef _MONSTER_H_
+#define _MONSTER_H_
+
 #include <stdlib.h>
 #include <math.h>
 #include <GL/glut.h>
@@ -80,51 +84,68 @@ void buildMonsters() {
             //Salva a matriz
             glPushMatrix();
 
-            //Translação para a posição correta
+            //Translação para a posição do monstro
             glTranslatef(aux->charx + 0.5, aux->chary, aux->charz + 0.5);
 
-            //Corpo do personagem
-            glPushMatrix();
-            glColor3ub(255, 0, 255);
-            glTranslatef(0, (bodyY / 2), 0);
-            glScalef(bodyX, bodyY, bodyZ);
-            glutSolidCube(1);
-            glPopMatrix();
-
-            //Cor para cabeça, e braços do personagem
-            glColor3ub(255, 255, 0);
+            //Rotação de acordo com o lado positivo
+            if (aux->direcaox != 0) {
+                if (aux->direcaox == 1) {
+                    //glRotatef(90, 1, 0, 0);
+                } else {
+                    glRotatef(180, 0, 1, 0);
+                }
+            } else if (aux->direcaoz != 0) {
+                if (aux->direcaoz == 1) {
+                    glRotatef(270, 0, 1, 0);
+                } else {
+                    glRotatef(90, 0, 1, 0);
+                }
+            }
 
             //Cabeça do personagem
             glPushMatrix();
-            glTranslatef(0, bodyY + (headY / 2), 0);
-            glScalef(headX, headY, headZ);
-            glutSolidSphere(1, 50, 50);
+                glColor3ub(255, 255, 0);
+                glTranslatef(0, bodyY + (headY / 2) + 0.075, 0);
+                glScalef(headX, headY, headZ);
+                glutSolidSphere(1, 50, 50);
+            glPopMatrix();
+
+            //Corpo do personagem
+            glPushMatrix();
+                glColor3ub(255, 0, 255);
+                glTranslatef(0, (bodyY / 2), 0);
+                glScalef(bodyX, bodyY, bodyZ);
+                glutSolidCube(1);
             glPopMatrix();
 
             //Braço esquerdo do personagem
+            glColor3ub(255, 255, 0);
+
             glPushMatrix();
-            glTranslatef(0, bodyY - (leftArmY / 2) - 0.1, - (bodyZ / 2) - (armZ / 2));
-            glScalef(armX, leftArmY, armZ);
-            glutSolidCube(1);
+                glTranslatef(0, bodyY - (leftArmY / 2) - 0.1, - (bodyZ / 2) - (armZ / 2));
+                glScalef(armX, leftArmY, armZ);
+                glutSolidCube(1);
             glPopMatrix();
 
             glPushMatrix();
-            glTranslatef(leftArmY / 2, bodyY - (3 * leftArmY / 2), - (bodyZ / 2) - (armZ / 2));
-            glScalef(leftArmY + 0.1, armX, armZ);
-            glutSolidCube(1);
+                glTranslatef(leftArmY / 2, bodyY - (3 * leftArmY / 2), - (bodyZ / 2) - (armZ / 2));
+                glScalef(leftArmY + 0.1, armX, armZ);
+                glutSolidCube(1);
             glPopMatrix();
 
             //Braço direito do personagem
+            glColor3ub(255, 255, 0);
+
             glPushMatrix();
-            glTranslatef(0, bodyY - (rightArmY / 2) - 0.1, (bodyZ / 2) + (armZ / 2));
-            glScalef(armX, rightArmY, armZ);
-            glutSolidCube(1);
+                glTranslatef(0, bodyY - (rightArmY / 2) - 0.1, (bodyZ / 2) + (armZ / 2));
+                glScalef(armX, rightArmY, armZ);
+                glutSolidCube(1);
             glPopMatrix();
 
             glPushMatrix();
-            glTranslatef(rightArmY / 2, bodyY - (3 * rightArmY / 2), (bodyZ / 2) + (armZ / 2));
-            glScalef(rightArmY + 0.1, armX, armZ);
-            glutSolidCube(1);
+                glTranslatef(rightArmY / 2, bodyY - (3 * rightArmY / 2), (bodyZ / 2) + (armZ / 2));
+                glScalef(rightArmY + 0.1, armX, armZ);
+                glutSolidCube(1);
             glPopMatrix();
 
             glPopMatrix();
@@ -159,28 +180,28 @@ void moveMonsters() {
                     //Caso o tipo da câmera for 2D
 
                     //Se entrar em algum IF, vai para a próxima iteração do for
-                    if (distX > 0 && verifyMapContent(aux->charx+1, aux->charz) != 2) {
+                    if (distX > 0 && verifyMapContent(aux->charx+1, aux->charz) >= 0) {
                         aux->charx = aux->charx + 1;
-                        aux->direcaox = 0;
-                        aux->direcaoz = 1;
+                        aux->direcaox = 1;
+                        aux->direcaoz = 0;
                         continue;
                     }
 
-                    if (distX < 0 && verifyMapContent(aux->charx-1, aux->charz) != 2) {
+                    if (distX < 0 && verifyMapContent(aux->charx-1, aux->charz) >= 0) {
                         aux->charx = aux->charx - 1;
-                        aux->direcaox = 0;
-                        aux->direcaoz = -1;
+                        aux->direcaox = -1;
+                        aux->direcaoz = 0;
                         continue;
                     }
 
-                    if (distZ > 0 && verifyMapContent(aux->charx, aux->charz+1) != 2) {
+                    if (distZ > 0 && verifyMapContent(aux->charx, aux->charz+1) >= 0) {
                         aux->charz = aux->charz + 1;
                         aux->direcaox = 0;
                         aux->direcaoz = 1;
                         continue;
                     }
 
-                    if (distZ > 0 && verifyMapContent(aux->charx, aux->charz-1) != 2) {
+                    if (distZ < 0 && verifyMapContent(aux->charx, aux->charz-1) >= 0) {
                         aux->charz = aux->charz - 1;
                         aux->direcaox = 0;
                         aux->direcaoz = -1;
@@ -191,3 +212,5 @@ void moveMonsters() {
         }
     }
 }
+
+#endif

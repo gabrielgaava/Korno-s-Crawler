@@ -1,5 +1,9 @@
 // Biblioteca relacionada as funções do HUD
 
+//Verifica se a biblioteca já foi importada
+#ifndef _HUD_H_
+#define _HUD_H_
+
 //Bibliotecas utilizadas nesse arquivo
 #include <GL/glut.h>
 #include <iostream>
@@ -100,3 +104,5 @@ void drawHUD(int hud){
    glMatrixMode(GL_MODELVIEW);
    glPopMatrix();
 }
+
+#endif

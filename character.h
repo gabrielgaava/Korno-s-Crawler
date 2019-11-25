@@ -1,5 +1,10 @@
 // Biblioteca relacionada as funções do personagem principal
 
+//Verifica se a biblioteca já foi importada
+#ifndef _CHARACTER_H_
+#define _CHARACTER_H_
+
+// Bibliotecas utilizadas nesse arquivo
 #include <stdlib.h>
 #include <GL/glut.h>
 
@@ -16,6 +21,9 @@ typedef struct character {
     float direcaoy;
     float direcaoz;
 
+    //Utilizada para armazenar a arma
+    int currentAmmo, limitAmmo;
+
     //Vida do jogador
     float pLife = 100;
     float lifePerc = 1;
@@ -28,6 +36,7 @@ character *mainChar = NULL;
 /* Definição dos Protótipos das Funções */
 void createMainChar();
 void buildMainChar();
+void buildGun(float, float, float);
 void getLife(int x, int z);
 
 //Função que cria o personagem principal
@@ -61,10 +70,10 @@ void buildMainChar() {
     }
 
     //Variáveis que definem as escalas do modelo do personagem  
-    float headX = 0.23, headY = 0.23, headZ = 0.23; 
+    float headX = 0.20, headY = 0.20, headZ = 0.20; 
     float bodyX = 0.3, bodyY = 1.8, bodyZ = 0.5;
     float armX = 0.1, armZ = 0.1;
-    float leftArmY = 0.8;
+    float leftArmY = 0.6;
     float rightArmY = 0.4;
 
     //Salva a matriz
@@ -74,12 +83,8 @@ void buildMainChar() {
     glTranslatef(mainChar->charx + 0.5, mainChar->chary, mainChar->charz + 0.5);
 
     //Rotação de acordo com o lado positivo
-    if (mainChar->direcaox != 0) {
-        if (mainChar->direcaox == 1) {
-            //glRotatef(90, 1, 0, 0);
-        } else {
-            glRotatef(180, 0, 1, 0);
-        }
+    if (mainChar->direcaox == -1) {
+        glRotatef(180, 0, 1, 0);
     } else if (mainChar->direcaoz != 0) {
         if (mainChar->direcaoz == 1) {
             glRotatef(270, 0, 1, 0);
@@ -88,44 +93,69 @@ void buildMainChar() {
         }
     }
 
-    //Corpo do personagem
-    glPushMatrix();
-    glColor3ub(0, 0, 255);
-    glTranslatef(0, (bodyY / 2), 0);
-    glScalef(bodyX, bodyY, bodyZ);
-    glutSolidCube(1);
-    glPopMatrix();
-
-    //Cor para cabeça, e braços do personagem
-    glColor3f(1.5, 0, 0);
-
     //Cabeça do personagem
     glPushMatrix();
-    glTranslatef(0, bodyY + (headY / 2), 0);
-    glScalef(headX, headY, headZ);
-    glutSolidSphere(1, 50, 50);
+        glColor3ub(255, 0, 0);
+        glTranslatef(0, bodyY + (headY / 2) + 0.075, 0);
+        glScalef(headX, headY, headZ);
+        glutSolidSphere(1, 50, 50);
+    glPopMatrix();
+
+    //Corpo do personagem
+    glPushMatrix();
+        glColor3ub(0, 0, 255);
+        glTranslatef(0, (bodyY / 2), 0);
+        glScalef(bodyX, bodyY, bodyZ);
+        glutSolidCube(1);
     glPopMatrix();
 
     //Braço esquerdo do personagem
     glPushMatrix();
-    glTranslatef(0, bodyY - (leftArmY / 2) - 0.1, - (bodyZ / 2) - (armZ / 2));
-    glScalef(armX, leftArmY, armZ);
-    glutSolidCube(1);
+        glColor3ub(255, 0, 0);
+        glTranslatef(0, bodyY - (leftArmY / 2) - 0.1, - (bodyZ / 2) - (armZ / 2));
+        glScalef(armX, leftArmY, armZ);
+        glutSolidCube(1);
     glPopMatrix();
 
     //Braço direito do personagem
+    glColor3ub(255, 0, 0);
+
     glPushMatrix();
-    glTranslatef(0, bodyY - (rightArmY / 2) - 0.1, (bodyZ / 2) + (armZ / 2));
-    glScalef(armX, rightArmY, armZ);
-    glutSolidCube(1);
+        glTranslatef(0, bodyY - (rightArmY / 2) - 0.1, (bodyZ / 2) + (armZ / 2));
+        glScalef(armX, rightArmY, armZ);
+        glutSolidCube(1);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(rightArmY / 2, bodyY - (3 * rightArmY / 2), (bodyZ / 2) + (armZ / 2));
-    glScalef(rightArmY + 0.1, armX, armZ);
-    glutSolidCube(1);
+        glTranslatef((rightArmY / 2) - 0.05, bodyY - rightArmY - 0.1, (bodyZ / 2) + (armZ / 2));
+        glRotatef(90, 0, 0, 1);
+        glScalef(armX, rightArmY, armZ);
+        glutSolidCube(1);
     glPopMatrix();
+
+    // Modelagem da arma
+    buildGun(rightArmY, bodyY - rightArmY - 0.1, (bodyZ / 2) + (armZ / 2));
 
     //Volta a matriz ao estado anterior
     glPopMatrix();
 }
+
+// Função que constroi a arma
+void buildGun(float x, float y, float z) {
+    glColor3ub(0, 255, 0);
+
+    glPushMatrix();
+        glTranslatef(x, y, z);
+        glScalef(0.1, 0.17, 0.1);
+        glutSolidCube(1);
+    glPopMatrix();
+
+    glPushMatrix();
+        glTranslatef(x + 0.05, y + 0.1, z);
+        glRotatef(90, 0, 0, 1);
+        glScalef(0.10, 0.3, 0.1);
+        glutSolidCube(1);
+    glPopMatrix();
+}
+
+#endif
