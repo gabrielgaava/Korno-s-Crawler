@@ -237,7 +237,23 @@ void genereteThingsOnMap(){
 				//Evitando criar obstaculos em corredores Verticais
 				if(currentPhase->map[i][j+1] == WALL && currentPhase->map[i][j-1] == WALL)
 					continue;
+
+				//Evita criar obstaculos em entrada de corredores (CIMA)
+				if(currentPhase->map[i-1][j-1] == WALL && currentPhase->map[i+1][j-1] == WALL)
+					continue;
+
+				//Evita criar obstaculos em entrada de corredores (ESQUERDA)
+				if(currentPhase->map[i-1][j-1] == WALL && currentPhase->map[i-1][j+1] == WALL)
+					continue;
 				
+				//Evita criar obstaculos em entrada de corredores (DIREITA)
+				if(currentPhase->map[i+1][j-1] == WALL && currentPhase->map[i+1][j+1] == WALL)
+					continue;
+
+				//Evita criar obstaculos em entrada de corredores (BAIXO)
+				if(currentPhase->map[i-1][j+1] == WALL && currentPhase->map[i+1][j+1] == WALL)
+					continue;
+
 				currentPhase->map[i][j] = OBSTACLE;
 				i++;
 			}
