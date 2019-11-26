@@ -10,6 +10,7 @@
 #include "character.h"
 #include "monster.h"
 #include "hud.h"
+#include "bullet.h"
 
 //Para a Engine de Som
 #include "assets/soundEngine/irrKlang.h"

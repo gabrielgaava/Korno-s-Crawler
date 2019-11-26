@@ -4,6 +4,9 @@
 #ifndef _MONSTER_H_
 #define _MONSTER_H_
 
+#define MONSTER_DAMAGE 1
+#define MONSTER_COOLDOWN 10000000
+
 #include <stdlib.h>
 #include <math.h>
 #include <GL/glut.h>
@@ -23,6 +26,9 @@ typedef struct monster {
     //Variável lógica para definir se os monstros estão vivos
     int life;
 
+    //Variável que conta o cooldown do hit
+    short atackCooldown;
+
     //Utilizada para criar uma lista de monstros
     struct monster *next;
 } monster;
@@ -34,6 +40,7 @@ monster *listMonsters = NULL;
 void createMonsters();
 void buildMonsters();
 void moveMonsters();
+bool verifyMonsterPosition(float x, float z);
 
 //Função que cria novos monstros
 void createMonsters() {
@@ -54,6 +61,7 @@ void createMonsters() {
         newMonster->direcaoy = 0;
         newMonster->direcaoz = 0;
         newMonster->life = 1;
+        newMonster->atackCooldown = 0;
         newMonster->next = NULL;
 
         //Adiciona na lista de monstros
@@ -157,7 +165,6 @@ void buildMonsters() {
 void moveMonsters() {
     monster *aux = NULL;
     float distance, distX, distZ;
-    int step;
 
     for (aux = listMonsters; aux != NULL; aux = aux->next) {
         //Se o monstro não está morto
@@ -170,47 +177,85 @@ void moveMonsters() {
 
             //Se estiver no campo de visão percorre o caminho
             if (distance < 25){
-                if (distance == 1) {
-                    continue;
+                if (aux->atackCooldown == 0) {
+                    //Verifica se está no range
+                    if ((fabs(distX) <= 1 && fabs(distZ) == 0) || (fabs(distX) == 0 && fabs(distZ <= 1))) {
+                        //Aqui dá o dano
+                        //damageChar(MONSTER_DAMAGE);
+
+                        //Se atacou não faz nenhuma ação
+                        continue;
+                    }
+                } else {
+                    aux->atackCooldown--;
                 }
 
-                //ATENÇÃO: Essa parte do código abaixo foi realizada as pressas
-                //Foi mal :/
-                //if (tipoCam > 0) {
-                    //Caso o tipo da câmera for 2D
+                //Se entrar em algum IF, vai para a próxima iteração do for
+                if (distX > 0 && verifyMapContent(aux->charx + 1, aux->charz) >= 0) {
+                    if (!verifyMonsterPosition(aux->charx + 1, aux->charz)) {
+                        if (aux->direcaox != 1) {
+                            aux->direcaox = 1;
+                            aux->direcaoz = 0;
+                        } else {
+                            aux->charx = aux->charx + 1;
+                        }
+                        continue;    
+                    }
+                }
 
-                    //Se entrar em algum IF, vai para a próxima iteração do for
-                    if (distX > 0 && verifyMapContent(aux->charx+1, aux->charz) >= 0) {
-                        aux->charx = aux->charx + 1;
-                        aux->direcaox = 1;
-                        aux->direcaoz = 0;
+                if (distX < 0 && verifyMapContent(aux->charx - 1, aux->charz) >= 0) {
+                    if (!verifyMonsterPosition(aux->charx - 1, aux->charz)) {
+                        if (aux->direcaox != -1) {
+                            aux->direcaox = -1;
+                            aux->direcaoz = 0;
+                        } else {
+                            aux->charx = aux->charx - 1;
+                        }
                         continue;
                     }
-
-                    if (distX < 0 && verifyMapContent(aux->charx-1, aux->charz) >= 0) {
-                        aux->charx = aux->charx - 1;
-                        aux->direcaox = -1;
-                        aux->direcaoz = 0;
+                }
+                
+                if (distZ > 0 && verifyMapContent(aux->charx, aux->charz + 1) >= 0) {
+                    if (!verifyMonsterPosition(aux->charx, aux->charz + 1)) {
+                        if (aux->direcaoz != 1) {
+                            aux->direcaox = 0;
+                            aux->direcaoz = 1;
+                        } else {
+                            aux->charz = aux->charz + 1;
+                        }
                         continue;
                     }
+                }
 
-                    if (distZ > 0 && verifyMapContent(aux->charx, aux->charz+1) >= 0) {
-                        aux->charz = aux->charz + 1;
-                        aux->direcaox = 0;
-                        aux->direcaoz = 1;
+                if (distZ < 0 && verifyMapContent(aux->charx, aux->charz - 1) >= 0) {
+                    if (!verifyMonsterPosition(aux->charx, aux->charz - 1)) {
+                        if (aux->direcaoz != -1) {
+                            aux->direcaox = 0;
+                            aux->direcaoz = -1;
+                        } else {
+                            aux->charz = aux->charz - 1;
+                        }
                         continue;
                     }
-
-                    if (distZ < 0 && verifyMapContent(aux->charx, aux->charz-1) >= 0) {
-                        aux->charz = aux->charz - 1;
-                        aux->direcaox = 0;
-                        aux->direcaoz = -1;
-                        continue;
-                    }
-                //}
+                }
             }
         }
     }
+}
+
+// Função que verifica se possui algum monstro naquela posição
+bool verifyMonsterPosition(float x, float z) {
+    monster *aux = NULL;
+
+    // Busca se naquele ponto existe algum zumbi
+    for (aux = listMonsters; aux != NULL; aux = aux->next) {
+        if (aux->charx == x && aux->charz == z) {
+            return true;
+        }
+    }
+
+    // Se não encontrou retorna false
+    return false;
 }
 
 #endif
