@@ -491,13 +491,36 @@ void keyboard(unsigned char key, int x, int y) {
       case 'p':
          tipoCam *= -1;
          
-         if(!tipoCam){
-            rot = 0;
+         if (tipoCam > 0) {
+            if (rot > 315 || rot <= 45) {
+               mainChar->direcaox = 1;
+               mainChar->direcaoz = 0;
+            } else if (rot <= 135) {
+               mainChar->direcaox = 0;
+               mainChar->direcaoz = 1;
+            } else if (rot <= 225) {
+               mainChar->direcaox = -1;
+               mainChar->direcaoz = 0;
+            } else {
+               mainChar->direcaox = 0;
+               mainChar->direcaoz = -1;
+            }
+         } else {
+            if (mainChar->direcaox != 0) {
+               if (mainChar->direcaox == 1) {
+                  rot = 0;
+               } else {
+                  rot = 180;
+               }
+            } else {
+               if (mainChar->direcaoz == 1) {
+                  rot = 90;
+               } else {
+                  rot = 270;
+               }
+            }
          }
-         else{
-            mainChar->charx = round(mainChar->charx);
-            mainChar->charz = round(mainChar->charz);
-         }
+
          adjustCamera();
          break;
          
