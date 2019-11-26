@@ -10,7 +10,6 @@
 #include "character.h"
 #include "monster.h"
 #include "hud.h"
-#include "bullet.h"
 
 //Para a Engine de Som
 #include "assets/soundEngine/irrKlang.h"
@@ -31,7 +30,8 @@ int lx, ly,lz;
 double rotation, inclination;
 int botao,estado;
 //Variável que definee o tipo da câmera
-int tipoCam = 1,rot = 0;
+int tipoCam = 1;
+float rot = 0;
 double t = 0;
 
 //Device de Som
@@ -220,7 +220,7 @@ void Display() {
    frame_count++;
    final_time = time(NULL);
    if(final_time - initial_time > 0){
-      cout << "FPS: " << frame_count / (final_time - initial_time)  << endl;
+      //cout << "FPS: " << frame_count / (final_time - initial_time)  << endl;
       frame_count = 0;
       initial_time = final_time;
    }
@@ -318,95 +318,124 @@ void keyboard2d(unsigned char key) {
    }
 }
 
+int verificaQuadrante(){
+   if(rot > 337.5 || rot <= 22.5)
+      return 1;
+   else if(rot > 22.5 && rot <= 67.5)
+      return 2;
+   else if(rot > 67.5 && rot <= 112.5)
+      return 3;
+   else if(rot >112.5 && rot <= 157.5)
+      return 4;
+   else if(rot > 157.5 && rot <= 202.5)
+      return 5;
+   else if(rot > 202.5 && rot <= 247.5)
+      return 6;
+   else if(rot > 247.5 && rot <= 292.5)
+      return 7;
+   else if(rot > 292.5 && rot <= 337.5)
+      return 8;   
+}
+
+void walk3d(short valor){
+   short quadrante = verificaQuadrante();
+   int zatual = (int)mainChar->charx;
+   int xatual = (int)mainChar->charz;
+
+   switch (quadrante){
+      case 1:
+         if(verifyMapContent(xatual,zatual+1) >= 0){ 
+            mainChar->charz += valor  ;
+            printf("andou %d\n",quadrante);
+            }
+            break;
+
+         case 2:
+            if(verifyMapContent(xatual+1,zatual+1) >= 0){
+               mainChar->charx += valor;
+               mainChar->charz += valor;
+                           printf("andou %d\n",quadrante);
+
+            }
+            break;
+         case 3:
+            if(verifyMapContent(xatual+1,zatual) >= 0){
+               mainChar->charx += valor;
+                           printf("andou %d\n",quadrante);
+
+            }
+            break;
+         case 4:
+            if(verifyMapContent(xatual+1,zatual-1) >= 0){
+               mainChar->charx += valor;
+               mainChar->charz -= valor;
+                           printf("andou %d\n",quadrante);
+            }
+            break;
+         case 5:
+            if(verifyMapContent(xatual,zatual-1) >= 0){
+               mainChar->charz -=valor;
+                           printf("andou %d\n",quadrante);
+
+            }
+            break;
+         case 6:
+            if(verifyMapContent(xatual-1,zatual-1) >= 0 ){
+               mainChar->charx -= valor;
+               mainChar->charz -= valor;
+                           printf("andou %d\n",quadrante);
+
+            }
+            break;
+         case 7:
+            if(verifyMapContent(xatual-1,zatual) >= 0){
+               mainChar->charx -= valor;
+                           printf("andou %d\n",quadrante);
+
+            }
+            break;
+         case 8:
+            if(verifyMapContent(xatual-1,zatual+1) >= 0){
+               mainChar->charx -= valor;
+               mainChar->charz += valor;
+                           printf("andou %d\n",quadrante);
+
+            }
+            break;
+      
+      default:
+         break;
+   }
+}
+
+
 void keyboard3d(unsigned char key, int x, int y) {
    //Key - recebe o código ASCII da tecla
    //x, y - recebem as posições do mouse na tela (permite tratar os dois dispositivos)
 
    switch(key) {
       case 'w':
-         if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] >= 0){
-            mainChar->charx = ox;
-            mainChar->charz = oz;
-         }
-        if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] == 9){
-            mainChar->charx = ox;
-            mainChar->charz = oz;
-            getLife((int)round(mainChar->charx),(int)round(mainChar->charz));
-            
-         }
+         walk3d(1);
          adjustCamera();
          break;
 
       case 's':
-         if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] == 1){
-            mainChar->charx -= cos(DEG_TO_RAD*rot);
-            mainChar->charz -= sin(DEG_TO_RAD*rot);
-            
-         }
-         if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] == 9){
-            mainChar->charx -= cos(DEG_TO_RAD*rot);
-            mainChar->charz -= sin(DEG_TO_RAD*rot);
-            getLife((int)round(mainChar->charx),(int)round(mainChar->charz));
-            
-         }
+         walk3d(-1);
          adjustCamera();
          break;
 
       case 'a':
-         //Chão
-         /*if (currentPhase->map[(int) (mainChar->charx)][(int) (mainChar->charx - 1)] == 1 && tipoCam > 0) {
-            if (mainChar->direcaoz != -1) {
-               mainChar->direcaox = 0;
-               mainChar->direcaoz = -1;
-            } else {
-               if(tipoCam)
-                  mainChar->charz--;
-            }
-         }
-         //Vida
-         if (currentPhase->map[posX][posZ - 1] == 9 && tipoCam > 0) {
-            if (mainChar->direcaoz != -1) {
-               mainChar->direcaox = 0;
-               mainChar->direcaoz = -1;
-            } else {
-               mainChar->charz--;
-               rot = 180;
-            }
-            getLife(posX,posZ-1);
-         }
-         if (tipoCam < 0){
-               rot -= 5;
-               if(rot == 360){
-                  rot = 0;
-               }
-         }*/
+         rot -= 5;
+         if(rot == 360)
+            rot = 0;
+         adjustCamera();
          break;
+         
       case 'd':
-         //Chão
-         /*if (currentPhase->map[posX][posZ + 1] == 1 && tipoCam > 0) {
-            if (mainChar->direcaoz != 1) {
-               mainChar->direcaox = 0;
-               mainChar->direcaoz = 1;
-            } else {
-               mainChar->charz++;
-            }
-         }
-         //Vida
-         if (currentPhase->map[posX][posZ + 1] == 9 && tipoCam > 0) {
-            if (mainChar->direcaoz != 1) {
-               mainChar->direcaox = 0;
-               mainChar->direcaoz = 1;
-            } else {
-               mainChar->charz++;
-            }
-            getLife(posX, posZ+1);
-         }
-         if (tipoCam < 0){
-               rot += 5;
-               if(rot == 360){
-                  rot = 0;
-               }
-         }*/
+         rot += 5;
+         if(rot == 0)
+            rot = 360;
+         adjustCamera();
          break;
       default:
          break;
@@ -544,6 +573,7 @@ int main(int argc,char **argv) {
 
    glutDisplayFunc(Display);
    glutMouseFunc(Mouse);
+   fflush(stdin);
    glutKeyboardFunc(keyboard);
    glutSpecialFunc(TeclasEspeciais);
    glutIdleFunc(idle);
