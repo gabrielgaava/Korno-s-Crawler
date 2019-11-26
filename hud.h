@@ -42,7 +42,7 @@ void drawText(const char *text, int length, float x, float y){
 //Função de criação dos elementos da HUD
 void HUD(){
    //glBindTexture(GL_TEXTURE_2D, HUDtex);
-   glColor4f(1.0, 0.0, 0.0, 1.0);
+   glColor4ub(245,86,112, 255);
    glRectd(mainChar->lifePerc*-1, 0.02, mainChar->lifePerc, -0.02);
 
    string text = "Vida: "+ to_string(mainChar->pLife) +"%";

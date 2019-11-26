@@ -12,6 +12,7 @@
 #define WALL -1
 #define NOTHING 0
 #define FLOOR 1
+#define TRAP 5
 #define EXIT 8
 #define LIFE_SPHERE 9
 #define PLAYABLE 32767
@@ -290,7 +291,7 @@ void buildMap() {
 					glPushMatrix();
 						glTranslatef(i + 0.5, 4, j + 0.5);
 						glScalef(1, 8, 1);
-						glColor3ub(0, 255, 0);
+						glColor3ub(120, 120, 120);
 						glutSolidCube(1);
 					glPopMatrix();
 					break;
@@ -321,7 +322,7 @@ void buildMap() {
 					glPushMatrix();
 						glTranslatef(i + 0.5, 2, j + 0.5);
 						glScalef(0.015, 0.015, 0.015);
-						glColor3ub(255,0,0);
+						glColor3ub(245,86,112);
 						glutSolidSphere(20,10,10);
 					glPopMatrix();
 					break;

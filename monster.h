@@ -182,6 +182,7 @@ void moveMonsters() {
                     if ((fabs(distX) <= 1 && fabs(distZ) == 0) || (fabs(distX) == 0 && fabs(distZ <= 1))) {
                         //Aqui dá o dano
                         //damageChar(MONSTER_DAMAGE);
+                        //ISound* music = engine->play2D("assets/damage.mp3", false);
 
                         //Se atacou não faz nenhuma ação
                         continue;
