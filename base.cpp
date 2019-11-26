@@ -70,6 +70,11 @@ void getLife(int x, int z){
    ISound* music = engine->play2D("assets/life.wav", false);
 }
 
+//Função para criar um TRAP
+void putTrap(int x, int z){
+      ISound* music = engine->play2D("assets/trap.wav", false);
+}
+
 //Função que ajusta a câmera
 void adjustCamera(){
    //Camera 2D --
@@ -313,6 +318,11 @@ void keyboard2d(unsigned char key) {
          }
          break;
 
+      case 't':
+         //Coloca uma trap
+         putTrap(1, 1);
+         break;
+
       default:
          break;
    }
@@ -497,6 +507,10 @@ void keyboard(unsigned char key, int x, int y) {
             mainChar->isDead = false;
             nowHud = 1;
          }
+         break;
+
+      case 't':
+         putTrap(1,1);
          break;
       
       case 13: //ENTER
