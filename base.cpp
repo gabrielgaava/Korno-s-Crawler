@@ -323,11 +323,11 @@ void keyboard3d(unsigned char key, int x, int y) {
 
    switch(key) {
       case 'w':
-         if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] > 0){
+         if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] >= 0){
             mainChar->charx = ox;
             mainChar->charz = oz;
          }
-         if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] == 9){
+        if(currentPhase->map[(int)floor(mainChar->charx) + 1][(int)floor(mainChar->charz) + 1] == 9){
             mainChar->charx = ox;
             mainChar->charz = oz;
             getLife((int)round(mainChar->charx),(int)round(mainChar->charz));
