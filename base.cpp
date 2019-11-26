@@ -72,7 +72,11 @@ void getLife(int x, int z){
 
 //Função para criar um TRAP
 void putTrap(int x, int z){
+   if(mainChar->currentTraps >= 1){
+      mainChar->currentTraps -= 1;
+      currentPhase->map[x][z] = 5;
       ISound* music = engine->play2D("assets/trap.wav", false);
+   }
 }
 
 //Função que ajusta a câmera
@@ -140,7 +144,7 @@ void timer(int){
 void idle(){
    glutPostRedisplay();
    if(!mainChar->isDead && nowHud != 0){
-      //mainChar->pLife = mainChar->pLife - 0.150;
+      mainChar->pLife = mainChar->pLife - 0.05;
       //cout << "Life: " << mainChar->pLife << endl;
       //Atualiza a porcentagem de vida do jogador pra
       //ser mostrada na barra de vida
@@ -510,7 +514,7 @@ void keyboard(unsigned char key, int x, int y) {
          break;
 
       case 't':
-         putTrap(1,1);
+         putTrap(mainChar->charx, mainChar->charz);
          break;
       
       case 13: //ENTER

@@ -24,6 +24,9 @@ typedef struct character {
     //Utilizada para armazenar a arma
     int currentAmmo, limitAmmo;
 
+    //Armadilhas usados no jogo
+    int currentTraps = 5;
+
     //Vida do jogador
     float pLife = 100;
     float lifePerc = 1;

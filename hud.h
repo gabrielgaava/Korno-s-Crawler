@@ -51,6 +51,10 @@ void HUD(){
    glColor4f(1.0, 1.0, 1.0, 1.0);
    string text2 = "Balas:  10/10";
    drawText(text2.data(), text2.size(), 6.6, 8.5);
+
+   glColor4f(1.0, 1.0, 1.0, 1.0);
+   string text3 = "Traps: " + to_string(mainChar->currentTraps) + "/5";
+   drawText(text3.data(), text3.size(), 6.6, 8);
 }
 
 //"Tela" de Game over
