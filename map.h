@@ -43,12 +43,12 @@ void createHall();
 void createWall();
 void createMap();
 void createExit();
+void genereteThingsOnMap();
 void buildPhase();
 void buildMap();
 void buildFloor();
-int verifyMapContent(int, int);
+short verifyMapContent(short, short);
 void printMap();
-void genereteThingsOnMap();
 
 // Função que inicializa a struct fase
 void createPhase() {
@@ -361,7 +361,7 @@ void buildPhase() {
 }
 
 //Função que verifica o conteudo do mapa no ponto (X,Z)
-int verifyMapContent(int x, int z) {
+short verifyMapContent(short x, short z) {
 	return currentPhase->map[x][z];
 }
 

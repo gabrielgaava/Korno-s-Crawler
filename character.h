@@ -41,6 +41,7 @@ void createMainChar();
 void buildMainChar();
 void buildGun(float, float, float);
 void getLife(int x, int z);
+void damageChar(float damage);
 void shoot(int x, int z, int in);
 
 void shoot(int x, int z, int in){
@@ -171,6 +172,11 @@ void buildGun(float x, float y, float z) {
         glScalef(0.10, 0.3, 0.1);
         glutSolidCube(1);
     glPopMatrix();
+}
+
+// Função que marca o dano no character
+void damageChar(float damage) {
+    mainChar->pLife = mainChar->pLife - damage;
 }
 
 #endif
