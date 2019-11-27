@@ -86,13 +86,13 @@ void createPhase() {
 	createMap();
 
 	// Set para 0 a área jogável. Finalidade de manter na matriz só coisas do mapa
-	for (i=0; i < currentPhase->size_x; i++) {
+	/*for (i=0; i < currentPhase->size_x; i++) {
 		for (j=0; j < currentPhase->size_z; j++) {
 			if (currentPhase->map[i][j] == PLAYABLE) {
 				currentPhase->map[i][j] = 0;
 			}
 		}
-	}
+	}*/
 }
 
 // Função para criar uma sala, adicionando um lista de sala e set no mapa como jogável

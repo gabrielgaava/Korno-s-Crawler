@@ -7,7 +7,7 @@
 #define MONSTER_DAMAGE 10
 #define MONSTER_ATACK_COOLDOWN 1.5
 #define MONSTER_WALK_COOLDOWN 0.8
-#define MONSTER_NUMBER 25
+#define MONSTER_NUMBER 100
 
 #include <stdlib.h>
 #include <math.h>
@@ -57,7 +57,7 @@ void createMonsters() {
         do {
             i = rand() % currentPhase->size_x;
             j = rand() % currentPhase->size_z;
-        } while (currentPhase->map[i][j] != 1);
+        } while (currentPhase->map[i][j] <= 0);
 
         newMonster = new monster();
 

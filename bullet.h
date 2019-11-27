@@ -30,7 +30,6 @@ void clearBullets();
 /* Funções */
 
 int verificaQuadrante(int rot){
-    if(tipoCam1 > 0){
         if(rot > 315)
             return 1;
         else if(rot <= 45)
@@ -41,19 +40,6 @@ int verificaQuadrante(int rot){
             return 3;
         else if(rot >225 && rot <= 315)
             return 4;
-    }
-    else{
-        if(mainChar->direcaox == 0 && mainChar->direcaoz == 1)
-            return 1;
-        if(mainChar->direcaox == 1 && mainChar->direcaoz == 0)
-            return 2;
-        if(mainChar->direcaox == 0 && mainChar->direcaoz == -1)
-            return 3;
-        if(mainChar->direcaox == -1 && mainChar->direcaoz == 0)
-            return 4;
-        
-    }
-        
 }
 
 bullet *quadrante_to_direcao(bullet *nova,int rot){
@@ -138,17 +124,9 @@ void createBullet(int tipoCam,int rot,ISoundEngine *engine){
 
 // Função que controi a munição
 void buildBullet(bullet * b) {
-    float valor = 0.78;
-    int quadrante = verificaQuadrante(rot1);
     glPushMatrix();
         glColor3ub(0, 255, 0);
-        if(rot1 > 2)
-            glTranslatef(b->coordX + 0.5, 1.4, b->coordZ -valor);
-        else
-        {
-             glTranslatef(b->coordX + 0.5, 1.4, b->coordZ +valor);
-        }
-        
+        glTranslatef(b->coordX + 0.5, 1.4, b->coordZ + 0.5);
         glScalef(0.1, 0.05, 0.1);
         glutSolidSphere(1, 20, 20);
     glPopMatrix();
