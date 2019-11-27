@@ -336,11 +336,86 @@ void keyboard2d(unsigned char key) {
    }
 }
 
+int verificaQuadrante(){
+   if(rot > 315)
+      return 1;
+   else if(rot <= 45)
+      return 1;
+   else if(rot > 45 && rot <= 135)
+      return 2;
+   else if(rot > 135 && rot <= 225 )
+      return 3;
+   else if(rot >225 && rot <= 315)
+      return 4;
+   
+}
+void walk3d(int valor){
+   int quadrante;
+   quadrante = verificaQuadrante();
+   printf("quadrante: %d\n",quadrante);
+   printf("rotacao: %f",rot);
+
+   switch (quadrante)
+   {
+   case 1:
+      if(currentPhase->map[mainChar->charx-valor][mainChar->charz] >= 0)
+         mainChar->charx -= valor;
+      break;
+   
+   case 2:
+      if(currentPhase->map[mainChar->charx][mainChar->charz-valor] >= 0)
+         mainChar->charz -= valor;
+      break;
+   
+   case 3:
+      if(currentPhase->map[mainChar->charx+valor][mainChar->charz] >= 0)
+         mainChar->charx += valor;
+      break;
+   
+   
+   case 4:
+      if(currentPhase->map[mainChar->charx][mainChar->charz+valor] >= 0)
+         mainChar->charz += valor;
+      break;
+
+   default:
+      break;
+   }
+
+
+}
+
+
 void keyboard3d(unsigned char key, int x, int y) {
    //Key - recebe o código ASCII da tecla
    //x, y - recebem as posições do mouse na tela (permite tratar os dois dispositivos)
 
    switch(key) {
+
+      case 's':
+         walk3d(1);
+         break;
+      
+      case 'w':
+         walk3d(-1);
+         break;
+      
+      case 'a':
+         rot -= 5;
+         if(rot == 0)
+            rot = 360;
+         break;
+
+      case 'd':
+         rot += 5;
+         if(rot == 360)
+            rot = 0;
+         break;
+
+         
+
+
+      /*
       case 'w':
          if(currentPhase->map[mainChar->charx+1][mainChar->charz] >= 0){
             mainChar->charx ++;
@@ -367,6 +442,7 @@ void keyboard3d(unsigned char key, int x, int y) {
          adjustCamera();
          break;
 
+
       case 'q':
          rot -= 5;
          if(rot == 0)
@@ -381,10 +457,12 @@ void keyboard3d(unsigned char key, int x, int y) {
          adjustCamera();
          break;
 
-   }
+      */
 
+   }
    if(currentPhase->map[mainChar->charx][mainChar->charz] == LIFE_SPHERE)
             getLife(mainChar->charx,mainChar->charz);
+   adjustCamera();
 }
 
 void keyboard(unsigned char key, int x, int y) {
