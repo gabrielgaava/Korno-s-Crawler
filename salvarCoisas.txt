@@ -7,3 +7,112 @@ void loadTexture(const char*filename){
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
    glTexParameteri(GL_TEXTUTE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
+
+/*
+   switch(key) {
+
+      case 's':
+         walk3d(1);
+         break;
+      
+      case 'w':
+         walk3d(-1);
+         break;
+      
+      case 'a':
+         rot -= 5;
+         if(rot == 0)
+            rot = 360;
+         break;
+
+      case 'd':
+         rot += 5;
+         if(rot == 360)
+            rot = 0;
+         break;
+
+         
+*/
+/*
+int verificaQuadrante(){
+   if(rot > 337.5)
+      return 1;
+   else if(rot <= 22.5)
+      return 1;
+   else if(rot > 22.5 && rot <= 67.5 )
+      return 2;
+   else if(rot > 67.5 && rot <= 112.5)
+      return 3;
+   else if(rot > 112.5 && rot <= 157.5)
+      return 4;
+   else if(rot > 157.5 && rot <= 202.5)
+      return 5;
+   else if(rot > 202.5 && rot <= 247.5)
+      return 6;
+   else if(rot > 247.5 && rot <= 292.5)
+      return 7;
+   else
+   {
+      return 8;
+   }
+   
+}
+void walk3d(int valor){
+   int quadrante;
+   quadrante = verificaQuadrante();
+   printf("quadrante: %d\n",quadrante);
+   printf("rotacao: %f",rot);
+
+   switch (quadrante)
+   {
+   case 1:
+      if(currentPhase->map[mainChar->charx-valor][mainChar->charz] >= 0)
+         mainChar->charx -= valor;
+      break;
+   
+   case 2:
+      if(currentPhase->map[mainChar->charx-valor][mainChar->charz-valor] >= 0)
+         mainChar->charx -= valor;
+         mainChar->charz -= valor;
+      break;
+   
+   case 3:
+      if(currentPhase->map[mainChar->charx][mainChar->charz-valor] >= 0)
+         mainChar->charz -= valor;
+      break;
+   
+   case 4:
+      if(currentPhase->map[mainChar->charx+valor][mainChar->charz-valor] >= 0)
+         mainChar->charx += valor;
+         mainChar->charz -= valor;
+      break;
+
+   case 5:
+      if(currentPhase->map[mainChar->charx+valor][mainChar->charz] >= 0)
+         mainChar->charx += valor;
+      break;
+   
+   case 6:
+      if(currentPhase->map[mainChar->charx+valor][mainChar->charz+valor] >= 0)
+         mainChar->charx += valor;
+         mainChar->charz += valor;
+      break;
+   
+   case 7:
+      if(currentPhase->map[mainChar->charx][mainChar->charz+valor] >= 0)
+         mainChar->charz += valor;
+      break;
+
+   case 8:
+      if(currentPhase->map[mainChar->charx-valor][mainChar->charz+valor] >= 0)
+         mainChar->charx -= valor;
+         mainChar->charz += valor;
+      break;
+
+   default:
+      break;
+   }
+
+
+}
+*/

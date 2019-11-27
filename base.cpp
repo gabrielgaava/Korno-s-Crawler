@@ -57,7 +57,7 @@ void createGame();
 void getLife(int, int);
 
 //Função para coletar orbe de vida
-void getLife(){
+void getLife(int x, int z){
    mainChar->pLife = mainChar->pLife + 5;
     
    //Vida maxima = 100
@@ -65,7 +65,7 @@ void getLife(){
      mainChar->pLife = 100;
    }
     
-   currentPhase->map[mainChar->charx][mainChar->charz] = 0;
+   currentPhase->map[x][z] = 0;
 
    // play some sound stream, looped, in 3D space
    ISound* music = engine->play2D("assets/life.wav", false);
@@ -257,8 +257,8 @@ void keyboard2d(unsigned char key) {
    //Key - recebe o código ASCII da tecla
    fflush(stdin);
    //Passa para int a posição do personagem
-   int posX = mainChar->charx;
-   int posZ = mainChar->charz;
+   int posX = (int) mainChar->charx;
+   int posZ = (int) mainChar->charz;
 
    switch (key) {
       case 'w':
@@ -272,6 +272,11 @@ void keyboard2d(unsigned char key) {
             } else {
                // Se estiver, caminha e executa outras ações (se houver)
                mainChar->charx++;
+            
+               //Se tem uma vida, atualiza
+               if(currentPhase->map[posX + 1][posZ] == LIFE_SPHERE) {
+                  getLife(posX+1, posZ);
+               }
             }
          }
          break;
@@ -284,6 +289,9 @@ void keyboard2d(unsigned char key) {
                mainChar->direcaoz = 0;
             } else {
                mainChar->charx--;
+               if(currentPhase->map[posX - 1][posZ] == LIFE_SPHERE) {
+                  getLife(posX-1, posZ);
+               }
             }
          }
          break;
@@ -296,6 +304,9 @@ void keyboard2d(unsigned char key) {
                mainChar->direcaoz = -1;
             } else {
                mainChar->charz--;
+               if(currentPhase->map[posX][posZ - 1] == LIFE_SPHERE) {
+                  getLife(posX, posZ - 1);
+               }
             }
          }
          break;
@@ -308,8 +319,16 @@ void keyboard2d(unsigned char key) {
                mainChar->direcaoz = 1;
             } else {
                mainChar->charz++;
+               if(currentPhase->map[posX][posZ + 1] == LIFE_SPHERE) {
+                  getLife(posX, posZ + 1);
+               }
             }
          }
+         break;
+
+      case 't':
+         //Coloca uma trap
+         putTrap(1, 1);
          break;
 
       default:
@@ -317,20 +336,95 @@ void keyboard2d(unsigned char key) {
    }
 }
 
+int verificaQuadrante(){
+   if(rot > 315)
+      return 1;
+   else if(rot <= 45)
+      return 1;
+   else if(rot > 45 && rot <= 135)
+      return 2;
+   else if(rot > 135 && rot <= 225 )
+      return 3;
+   else if(rot >225 && rot <= 315)
+      return 4;
+   
+}
+void walk3d(int valor){
+   int quadrante;
+   quadrante = verificaQuadrante();
+
+   switch (quadrante)
+   {
+   case 1:
+      if(currentPhase->map[mainChar->charx-valor][mainChar->charz] >= 0)
+         mainChar->charx -= valor;
+      break;
+   
+   case 2:
+      if(currentPhase->map[mainChar->charx][mainChar->charz-valor] >= 0)
+         mainChar->charz -= valor;
+      break;
+   
+   case 3:
+      if(currentPhase->map[mainChar->charx+valor][mainChar->charz] >= 0)
+         mainChar->charx += valor;
+      break;
+   
+   
+   case 4:
+      if(currentPhase->map[mainChar->charx][mainChar->charz+valor] >= 0)
+         mainChar->charz += valor;
+      break;
+
+   default:
+      break;
+   }
+
+
+}
+
+
 void keyboard3d(unsigned char key, int x, int y) {
    //Key - recebe o código ASCII da tecla
    //x, y - recebem as posições do mouse na tela (permite tratar os dois dispositivos)
 
    switch(key) {
+
+      case 's':
+         walk3d(1);
+         break;
+      
       case 'w':
-         if(currentPhase->map[mainChar->charx+1][mainChar->charz] >= 0)
+         walk3d(-1);
+         break;
+      
+      case 'a':
+         rot -= 5;
+         if(rot == 0)
+            rot = 360;
+         break;
+
+      case 'd':
+         rot += 5;
+         if(rot == 360)
+            rot = 0;
+         break;
+
+         
+
+
+      /*
+      case 'w':
+         if(currentPhase->map[mainChar->charx+1][mainChar->charz] >= 0){
             mainChar->charx ++;
+            
+         }
          adjustCamera();
          break;
 
       case 's':
          if(currentPhase->map[mainChar->charx-1][mainChar->charz] >= 0)
-            mainChar->charx--;
+         mainChar->charx --;
          adjustCamera();
          break;
 
@@ -346,6 +440,7 @@ void keyboard3d(unsigned char key, int x, int y) {
          adjustCamera();
          break;
 
+
       case 'q':
          rot -= 5;
          if(rot == 0)
@@ -360,9 +455,12 @@ void keyboard3d(unsigned char key, int x, int y) {
          adjustCamera();
          break;
 
-      default:
-         break;
+      */
+
    }
+   if(currentPhase->map[mainChar->charx][mainChar->charz] == LIFE_SPHERE)
+            getLife(mainChar->charx,mainChar->charz);
+   adjustCamera();
 }
 
 void keyboard(unsigned char key, int x, int y) {
@@ -446,7 +544,7 @@ void keyboard(unsigned char key, int x, int y) {
 
          case 'k':
             // Atira
-            createBullet();
+               createBullet();
             break;
          
          case 13: //ENTER
@@ -457,20 +555,6 @@ void keyboard(unsigned char key, int x, int y) {
          default:
             break;
       }
-   }
-
-   // Após executar as ações enviadas pelo teclado, verifica se a posição não possui um item
-   switch (verifyMapContent(mainChar->charx, mainChar->charz)) {
-      case LIFE_SPHERE:
-         getLife();
-         break;
-
-      case AMMO_DROP:
-         getAmmo();
-         break;
-
-      default:
-         break;
    }
    
    glutPostRedisplay();
