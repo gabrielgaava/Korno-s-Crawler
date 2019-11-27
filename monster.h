@@ -5,7 +5,8 @@
 #define _MONSTER_H_
 
 #define MONSTER_DAMAGE 1
-#define MONSTER_COOLDOWN 10000000
+#define MONSTER_ATACK_COOLDOWN 1
+#define MONSTER_WALK_COOLDOWN 1
 
 #include <stdlib.h>
 #include <math.h>
@@ -23,14 +24,14 @@ typedef struct monster {
     float direcaoy;
     float direcaoz;
 
-    //Variável lógica para definir se os monstros estão vivos
+    //Variável que controla a vida dos zumbi
     int life;
-
-    //Variável que conta o cooldown do hit
-    short atackCooldown;
 
     // Variável que verifica se o monstro tomou dano
     bool tookDamage;
+
+    //Variável que conta o cooldown das ações do zumbi
+    clock_t atackCooldown, walkCooldown;
 
     //Utilizada para criar uma lista de monstros
     struct monster *next;
@@ -70,6 +71,7 @@ void createMonsters() {
         newMonster->tookDamage = false;
 
         newMonster->atackCooldown = 0;
+        newMonster->walkCooldown = 0;
 
         newMonster->next = NULL;
 
@@ -166,91 +168,132 @@ void buildMonsters() {
 
 //Função que realiza a movimentação dos monstros
 void moveMonsters() {
-    monster *aux = NULL;
-    float distance, distX, distZ;
+    monster *aux, *previous;
+    int distX, distZ;
+    float distance;
+    double tempoDecorrido;
 
     if (listMonsters == NULL) {
         createMonsters();
     }
 
-    for (aux = listMonsters; aux != NULL; aux = aux->next) {
-        //Se o monstro não está morto
-
+    previous = NULL;
+    aux = listMonsters;
+    while (aux != NULL) {
         // Se o monstro tomou dano
         if (aux->tookDamage) {
             aux->life = 0;
         }
          
         if (aux->life > 0) {
+
             //Calcula a distancia do monstro para o player
             distX = mainChar->charx - aux->charx;
             distZ = mainChar->charz - aux->charz;
             distance = sqrt(pow(distX, 2) + pow(distZ, 2));
 
             //Se estiver no campo de visão percorre o caminho
-            if (distance < 25){
-                if (aux->atackCooldown == 0) {
-                    //Verifica se está no range
-                    if ((fabs(distX) <= 1 && fabs(distZ) == 0) || (fabs(distX) == 0 && fabs(distZ <= 1))) {
+            if (distance < 30){
+                
+                // Verifica se o monstro está no range
+                if ((abs(distX) == 1 && abs(distZ) == 0) || (abs(distX) == 0 && abs(distZ) == 1)) {
+                    
+                    // Calcula o cooldown do hit
+                    tempoDecorrido = ((double) clock() - aux->atackCooldown) / CLOCKS_PER_SEC;
+
+                    // Se passou do tempo de cooldown, o zumbi pode atacar
+                    if (tempoDecorrido >= MONSTER_ATACK_COOLDOWN) {
                         //Aqui dá o dano
-                        //damageChar(MONSTER_DAMAGE);
+                        damageChar(MONSTER_DAMAGE);
                         //ISound* music = engine->play2D("assets/damage.mp3", false);
 
-                        //Se atacou não faz nenhuma ação
-                        continue;
+                        // Registra a hora que atacou
+                        aux->atackCooldown = clock();
                     }
-                } else {
-                    aux->atackCooldown--;
+
+                    // Está a 1 de distancia em X ou Z
+                    // Nesse caso, se atacar não faz mais nada
+                    // Mesmo se não atacar, não faz nada
+                    continue;
                 }
 
-                //Se entrar em algum IF, vai para a próxima iteração do for
-                if (distX > 0 && verifyMapContent(aux->charx + 1, aux->charz) >= 0) {
-                    if (verifyMonsterPosition(aux->charx + 1, aux->charz) == NULL) {
-                        if (aux->direcaox != 1) {
-                            aux->direcaox = 1;
-                            aux->direcaoz = 0;
-                        } else {
-                            aux->charx = aux->charx + 1;
-                        }
-                        continue;    
-                    }
-                }
-
-                if (distX < 0 && verifyMapContent(aux->charx - 1, aux->charz) >= 0) {
-                    if (verifyMonsterPosition(aux->charx - 1, aux->charz) == NULL) {
-                        if (aux->direcaox != -1) {
-                            aux->direcaox = -1;
-                            aux->direcaoz = 0;
-                        } else {
-                            aux->charx = aux->charx - 1;
-                        }
-                        continue;
-                    }
-                }
+                // Calcula o cooldown para andar
+                tempoDecorrido = ((double) clock() - aux->walkCooldown) / CLOCKS_PER_SEC;
+                if (tempoDecorrido >= MONSTER_WALK_COOLDOWN) {
+                    aux->walkCooldown = clock();
                 
-                if (distZ > 0 && verifyMapContent(aux->charx, aux->charz + 1) >= 0) {
-                    if (verifyMonsterPosition(aux->charx, aux->charz + 1) == NULL) {
-                        if (aux->direcaoz != 1) {
-                            aux->direcaox = 0;
-                            aux->direcaoz = 1;
-                        } else {
-                            aux->charz = aux->charz + 1;
+                    //Se entrar em algum IF, vai para a próxima iteração do for
+                    if (distX > 0 && verifyMapContent(aux->charx + 1, aux->charz) >= 0) {
+                        if (verifyMonsterPosition(aux->charx + 1, aux->charz) == NULL) {
+                            if (aux->direcaox != 1) {
+                                aux->direcaox = 1;
+                                aux->direcaoz = 0;
+                            } else {
+                                aux->charx = aux->charx + 1;
+                            }
+                            continue;    
                         }
-                        continue;
                     }
-                }
 
-                if (distZ < 0 && verifyMapContent(aux->charx, aux->charz - 1) >= 0) {
-                    if (verifyMonsterPosition(aux->charx, aux->charz - 1) == NULL) {
-                        if (aux->direcaoz != -1) {
-                            aux->direcaox = 0;
-                            aux->direcaoz = -1;
-                        } else {
-                            aux->charz = aux->charz - 1;
+                    if (distX < 0 && verifyMapContent(aux->charx - 1, aux->charz) >= 0) {
+                        if (verifyMonsterPosition(aux->charx - 1, aux->charz) == NULL) {
+                            if (aux->direcaox != -1) {
+                                aux->direcaox = -1;
+                                aux->direcaoz = 0;
+                            } else {
+                                aux->charx = aux->charx - 1;
+                            }
+                            continue;
                         }
-                        continue;
+                    }
+                    
+                    if (distZ > 0 && verifyMapContent(aux->charx, aux->charz + 1) >= 0) {
+                        if (verifyMonsterPosition(aux->charx, aux->charz + 1) == NULL) {
+                            if (aux->direcaoz != 1) {
+                                aux->direcaox = 0;
+                                aux->direcaoz = 1;
+                            } else {
+                                aux->charz = aux->charz + 1;
+                            }
+                            continue;
+                        }
+                    }
+
+                    if (distZ < 0 && verifyMapContent(aux->charx, aux->charz - 1) >= 0) {
+                        if (verifyMonsterPosition(aux->charx, aux->charz - 1) == NULL) {
+                            if (aux->direcaoz != -1) {
+                                aux->direcaox = 0;
+                                aux->direcaoz = -1;
+                            } else {
+                                aux->charz = aux->charz - 1;
+                            }
+                            continue;
+                        }
                     }
                 }
+            }
+
+            // Zumbi vivo avança na lista
+            previous = aux;
+            aux = aux->next;
+
+        } else {
+            // Se o zumbi estiver morto, remover da lista
+            if (previous == NULL) {
+                // Remove do começo da lista
+                previous = aux->next;
+                free(aux);
+                aux = previous;
+                previous = NULL;
+
+                // Atualiza o ponteiro inicial da lista
+                listMonsters = aux;
+
+            } else {
+                // Remove meio/final
+                previous->next = aux->next;
+                free(aux);
+                aux = previous->next;
             }
         }
     }
