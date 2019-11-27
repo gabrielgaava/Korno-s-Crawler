@@ -104,7 +104,7 @@ void adjustCamera(){
       // Define a posição da câmera 
       posx = mainChar->charx;
       posy = 2;
-      posz = mainChar->charz;
+      posz = mainChar->charz +0.2;
 
       //Define onde a lente da câmera estará apontada
       ox = cos(DEG_TO_RAD*rot) + posx ;
@@ -255,7 +255,7 @@ void Mouse(int botao, int estado, int rotation, int inclination) {
 
 void keyboard2d(unsigned char key) {
    //Key - recebe o código ASCII da tecla
-
+   fflush(stdin);
    //Passa para int a posição do personagem
    int posX = (int) mainChar->charx;
    int posZ = (int) mainChar->charz;
@@ -336,128 +336,55 @@ void keyboard2d(unsigned char key) {
    }
 }
 
-int verificaQuadrante(){
-   if(rot > 337.5 || rot <= 22.5)
-      return 1;
-   else if(rot > 22.5 && rot <= 67.5)
-      return 2;
-   else if(rot > 67.5 && rot <= 112.5)
-      return 3;
-   else if(rot >112.5 && rot <= 157.5)
-      return 4;
-   else if(rot > 157.5 && rot <= 202.5)
-      return 5;
-   else if(rot > 202.5 && rot <= 247.5)
-      return 6;
-   else if(rot > 247.5 && rot <= 292.5)
-      return 7;
-   else if(rot > 292.5 && rot <= 337.5)
-      return 8;   
-}
-
-void walk3d(short valor){
-   short quadrante = verificaQuadrante();
-   int zatual = (int)mainChar->charx;
-   int xatual = (int)mainChar->charz;
-
-   switch (quadrante){
-      case 1:
-         if(verifyMapContent(xatual,zatual+1) >= 0){ 
-            mainChar->charz += valor  ;
-            printf("andou %d\n",quadrante);
-            }
-            break;
-
-         case 2:
-            if(verifyMapContent(xatual+1,zatual+1) >= 0){
-               mainChar->charx += valor;
-               mainChar->charz += valor;
-                           printf("andou %d\n",quadrante);
-
-            }
-            break;
-         case 3:
-            if(verifyMapContent(xatual+1,zatual) >= 0){
-               mainChar->charx += valor;
-                           printf("andou %d\n",quadrante);
-
-            }
-            break;
-         case 4:
-            if(verifyMapContent(xatual+1,zatual-1) >= 0){
-               mainChar->charx += valor;
-               mainChar->charz -= valor;
-                           printf("andou %d\n",quadrante);
-            }
-            break;
-         case 5:
-            if(verifyMapContent(xatual,zatual-1) >= 0){
-               mainChar->charz -=valor;
-                           printf("andou %d\n",quadrante);
-
-            }
-            break;
-         case 6:
-            if(verifyMapContent(xatual-1,zatual-1) >= 0 ){
-               mainChar->charx -= valor;
-               mainChar->charz -= valor;
-                           printf("andou %d\n",quadrante);
-
-            }
-            break;
-         case 7:
-            if(verifyMapContent(xatual-1,zatual) >= 0){
-               mainChar->charx -= valor;
-                           printf("andou %d\n",quadrante);
-
-            }
-            break;
-         case 8:
-            if(verifyMapContent(xatual-1,zatual+1) >= 0){
-               mainChar->charx -= valor;
-               mainChar->charz += valor;
-                           printf("andou %d\n",quadrante);
-
-            }
-            break;
-      
-      default:
-         break;
-   }
-}
-
-
 void keyboard3d(unsigned char key, int x, int y) {
    //Key - recebe o código ASCII da tecla
    //x, y - recebem as posições do mouse na tela (permite tratar os dois dispositivos)
 
    switch(key) {
       case 'w':
-         walk3d(1);
+         if(currentPhase->map[mainChar->charx+1][mainChar->charz] >= 0){
+            mainChar->charx ++;
+            
+         }
          adjustCamera();
          break;
 
       case 's':
-         walk3d(-1);
+         if(currentPhase->map[mainChar->charx-1][mainChar->charz] >= 0)
+         mainChar->charx --;
          adjustCamera();
          break;
 
       case 'a':
-         rot -= 5;
-         if(rot == 360)
-            rot = 0;
+         if(currentPhase->map[mainChar->charx][mainChar->charz-1] >= 0)
+            mainChar->charz--;
          adjustCamera();
          break;
          
       case 'd':
-         rot += 5;
+         if(currentPhase->map[mainChar->charx][mainChar->charz+1] >= 0)
+            mainChar->charz++;
+         adjustCamera();
+         break;
+
+      case 'q':
+         rot -= 5;
          if(rot == 0)
             rot = 360;
          adjustCamera();
          break;
-      default:
+      
+      case 'e':
+         rot += 5;
+         if(rot == 360)
+            rot = 0;
+         adjustCamera();
          break;
+
    }
+
+   if(currentPhase->map[mainChar->charx][mainChar->charz] == LIFE_SPHERE)
+            getLife(mainChar->charx,mainChar->charz);
 }
 
 void keyboard(unsigned char key, int x, int y) {
