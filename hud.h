@@ -60,6 +60,12 @@ void HUD(){
    glColor4f(1.0, 1.0, 1.0, 1.0);
    string text4 = "Traps: " + to_string(mainChar->currentTraps);
    drawText(text4.data(), text4.size(), 6.6, 8);
+
+   if(idPhase >= 10){
+      glColor4f(1.0, 1.0, 1.0, 1.0);
+      string text5 = "PARABÉNS, VOCÊ PLATINOU O JOGO";
+      drawText(text4.data(), text4.size(), 6.6, 8);
+   }
    
 }
 
