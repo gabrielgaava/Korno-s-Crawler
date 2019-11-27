@@ -18,6 +18,7 @@
 #define TRAP 5
 #define EXIT 8
 #define LIFE_SPHERE 9
+#define AMMO_DROP 10
 #define PLAYABLE 32767
 
 // Struct da sala
@@ -229,11 +230,12 @@ void genereteThingsOnMap(){
 			//Ele gera uma vida nesta posição
 			if(x <= 5 && currentPhase->map[i][j] == PLAYABLE){
 				currentPhase->map[i][j] = LIFE_SPHERE;
-				j = j+3;
-				i = i+1;
+				i = i + 1;
+				j = j + 3;
 			}
+
 			//Gera alguns obstaculos no mapa
-			if(x > 5 && x < 15 && currentPhase->map[i][j] == PLAYABLE){
+			if(x > 5 && x <= 15 && currentPhase->map[i][j] == PLAYABLE){
 				//Evitando criar obstaculos em corredores Horizontais
 				if(currentPhase->map[i+1][j] == WALL && currentPhase->map[i-1][j] == WALL)
 					continue;
@@ -260,6 +262,13 @@ void genereteThingsOnMap(){
 
 				currentPhase->map[i][j] = OBSTACLE;
 				i++;
+			}
+
+			//Gera drops de munição
+			if (x > 15 && x <= 20 && currentPhase->map[i][j] == PLAYABLE) {
+				currentPhase->map[i][j] = AMMO_DROP;
+				i = i + 1;
+				j = j + 3;
 			}
 
 		}
@@ -311,11 +320,11 @@ void buildMap() {
 					break;
 
 				case OBSTACLE:
-					//Obstaculo - Agua ?
+					//Obstaculo - Pilar
 					glPushMatrix();
-						glTranslatef(i + 0.5, -0.2, j + 0.5);
-						glScalef(1, 4, 1);
-						glColor3ub(112, 207, 255);	
+						glTranslatef(i + 0.5, 4, j + 0.5);
+						glScalef(1, 8, 1);
+						glColor3ub(112, 207, 255);
 						glutSolidCube(1);
 					glPopMatrix();
 					break;
@@ -334,10 +343,21 @@ void buildMap() {
 				case LIFE_SPHERE:
 					//Life
 					glPushMatrix();
-						glTranslatef(i + 0.5, 2, j + 0.5);
+						glTranslatef(i + 0.5, 1.5, j + 0.5);
 						glScalef(0.015, 0.015, 0.015);
 						glColor3ub(245,86,112);
 						glutSolidSphere(20,10,10);
+					glPopMatrix();
+					break;
+
+				case AMMO_DROP:
+					//Drop de munição
+					glPushMatrix();
+						glTranslatef(i + 0.5, 1.5, j + 0.5);
+						glRotatef(90, 0, 1, 0);
+						glScalef(0.25, 0.36, 0.25);
+						glColor3ub(0, 255, 0);
+						glutSolidCone(1, 1, 50, 50);
 					glPopMatrix();
 					break;
 

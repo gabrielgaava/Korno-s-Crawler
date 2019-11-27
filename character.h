@@ -23,18 +23,15 @@ typedef struct character {
     float direcaoz;
 
     //Utilizada para armazenar a arma
-    int currentAmmo, limitAmmo;
+    int currentAmmo;
 
     //Armadilhas usados no jogo
-    int currentTraps = 5;
+    int currentTraps;
 
     //Vida do jogador
-    float pLife = 100;
-    float lifePerc = 1;
-    bool isDead = false;
-
-    //Munição
-    int ammo = 10;
+    float pLife;
+    float lifePerc;
+    bool isDead;
 } character;
 
 /* Definição de Variáveis Globais */
@@ -46,18 +43,6 @@ void buildMainChar();
 void buildGun(float, float, float);
 void getLife(int x, int z);
 void damageChar(float damage);
-void shoot(int x, int z, int in);
-
-void shoot(int x, int z, int in){
-    
-    //criamos a bala em x,z que é onde o personagem esta
-    //criarBala(x,z);
-
-    //Depois disso, utilizamos a varivel IN pra saber se o tiro
-    //É no eixo X ou no eixo Z, dependendo de onde o personagem estiver olhando
-
-    //Só não sei ainda como fazer a bala "percorrer" o eixo IN
-}
 
 //Função que cria o personagem principal
 void createMainChar(){
@@ -79,6 +64,13 @@ void createMainChar(){
     mainChar->direcaox = 1;
     mainChar->direcaoy = 0;
     mainChar->direcaoz = 0;
+
+    //Definição de outras variáveis
+    mainChar->pLife = 100;
+    mainChar->currentAmmo = 10;
+    mainChar->currentTraps = 5;
+    mainChar->lifePerc = 1;
+    mainChar->isDead = false;
 }
 
 //Função para construir o personagem principal
