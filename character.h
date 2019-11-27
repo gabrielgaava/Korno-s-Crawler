@@ -7,6 +7,7 @@
 // Bibliotecas utilizadas nesse arquivo
 #include <stdlib.h>
 #include <GL/glut.h>
+#include "map.h"
 
 /* Definição das structs */
 typedef struct character {
@@ -71,7 +72,6 @@ void createMainChar(){
             mainChar->charz = aux->coord_z;
         }
     }
-    
     //Definindo posição em y do personagem principal
     mainChar->chary = 0;
 

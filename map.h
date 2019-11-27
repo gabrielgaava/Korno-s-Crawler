@@ -1,5 +1,8 @@
 // Biblioteca relacionada as funções do mapa
 
+#ifndef _MAP_H_
+#define _MAP_H_
+
 #include <stdlib.h>
 #include <GL/glut.h>
 
@@ -421,3 +424,5 @@ void printMap(){
 		printf("\n");
 	}
 }
+
+#endif

@@ -10,6 +10,7 @@
 #include "character.h"
 #include "monster.h"
 #include "hud.h"
+#include "bullet.h"
 
 //Para a Engine de Som
 #include "assets/soundEngine/irrKlang.h"
@@ -120,16 +121,19 @@ void adjustCamera(){
 //Função que cria o Frame
 void buildFrame() {
    if(nowHud != 0){
-      //Constroi o mapa
+      // Constroi o mapa
       buildPhase();
 
-      //Posiciona o jogador
+      // Posiciona o jogador
       buildMainChar();
 
-      //Realiza o movimento dos monstros
+      // Realiza as movimentações relacionadas as balas, e as coloca no mapa
+      moveBullets();
+
+      //Realiza o movimento dos monstros e posiciona os monstros
       moveMonsters();
 
-      //Posiciona os monstros
+      // Posiciona os monstros
       buildMonsters();
    }
 }
@@ -479,75 +483,77 @@ void keyboard(unsigned char key, int x, int y) {
          keyboard3d(key, x, y);
       }
    } else {
+      // Se não é uma tecla especial, faz a lógica
+      switch (key) {  
+         case 'p':
+            // Troca a câmera
+            tipoCam *= -1;
+            
+            if (tipoCam > 0) {
+               if (rot > 315 || rot <= 45) {
+                  mainChar->direcaox = 1;
+                  mainChar->direcaoz = 0;
+               } else if (rot <= 135) {
+                  mainChar->direcaox = 0;
+                  mainChar->direcaoz = 1;
+               } else if (rot <= 225) {
+                  mainChar->direcaox = -1;
+                  mainChar->direcaoz = 0;
+               } else {
+                  mainChar->direcaox = 0;
+                  mainChar->direcaoz = -1;
+               }
+            } else {
+               if (mainChar->direcaox != 0) {
+                  if (mainChar->direcaox == 1) {
+                     rot = 0;
+                  } else {
+                     rot = 180;
+                  }
+               } else {
+                  if (mainChar->direcaoz == 1) {
+                     rot = 90;
+                  } else {
+                     rot = 270;
+                  }
+               }
+            }
 
-      //Se não for uma tecla especial, faz a lógica
-      switch(key) {
+            adjustCamera();
+            break;
+            
+         case 'r':
+            // Começa o jogo
+            if(nowHud == 2){
+               //Inicializa as variáveis da Phase 1 do jogo
+               createGame();
+               //Inicializa as variaveis do personagem principal
+               createMainChar();
+               mainChar->pLife = 100;
+               mainChar->isDead = false;
+               nowHud = 1;
+            }
+            break;
+
+         case 't':
+            putTrap(mainChar->charx, mainChar->charz);
+            break;
+
+         case 'k':
+            // Atira
+               createBullet();
+            break;
+         
+         case 13: //ENTER
+            if(nowHud == 0)
+               nowHud = 1;
+            break;
+            
          default:
             break;
       }
    }
    
-   switch (key) {
-      case 'p':
-         tipoCam *= -1;
-         
-         if (tipoCam > 0) {
-            if (rot > 315 || rot <= 45) {
-               mainChar->direcaox = 1;
-               mainChar->direcaoz = 0;
-            } else if (rot <= 135) {
-               mainChar->direcaox = 0;
-               mainChar->direcaoz = 1;
-            } else if (rot <= 225) {
-               mainChar->direcaox = -1;
-               mainChar->direcaoz = 0;
-            } else {
-               mainChar->direcaox = 0;
-               mainChar->direcaoz = -1;
-            }
-         } else {
-            if (mainChar->direcaox != 0) {
-               if (mainChar->direcaox == 1) {
-                  rot = 0;
-               } else {
-                  rot = 180;
-               }
-            } else {
-               if (mainChar->direcaoz == 1) {
-                  rot = 90;
-               } else {
-                  rot = 270;
-               }
-            }
-         }
-
-         adjustCamera();
-         break;
-         
-      case 'r':
-         if(nowHud == 2){
-            //Inicializa as variáveis da Phase 1 do jogo
-            createGame();
-            //Inicializa as variaveis do personagem principal
-            createMainChar();
-            mainChar->pLife = 100;
-            mainChar->isDead = false;
-            nowHud = 1;
-         }
-         break;
-
-      case 't':
-         putTrap(mainChar->charx, mainChar->charz);
-         break;
-      
-      case 13: //ENTER
-         if(nowHud == 0)
-            nowHud = 1;
-         break;
-         
-      default:
-         break;
-   }
    glutPostRedisplay();
 }
 
@@ -607,7 +613,7 @@ int main(int argc,char **argv) {
    createMainChar();
 
    //Mostra o Mapa
-	printMap();
+	//printMap();
 
    //Opacidade nas cores
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
