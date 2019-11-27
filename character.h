@@ -49,14 +49,10 @@ void createMainChar(){
     //Inicializando o personagem principal
     mainChar = new character();
 
-    //Coloca o personagem em uma sala aleatória
-    for (room *aux = currentPhase->room_list; aux->next != NULL; aux = aux->next) {
-        //Aleatoriamente escolhe uma sala para o personagem começar
-        if(rand() % 2 == 1) {
-            mainChar->charx = aux->coord_x;
-            mainChar->charz = aux->coord_z;
-        }
-    }
+    //Coloca o personagem na primeira sala criada
+    mainChar->charx = currentPhase->room_list->coord_x;
+    mainChar->charz = currentPhase->room_list->coord_z;
+
     //Definindo posição em y do personagem principal
     mainChar->chary = 0;
 

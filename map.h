@@ -277,15 +277,25 @@ void genereteThingsOnMap(){
 
 // Função que cria uma saída no mapa
 void createExit() {
-	//Gera uma saída
-	int haveExit = 1;
-	while(haveExit != 0){
-		int iX = rand() % 128;
-		int iZ = rand() % 128;
-		if(currentPhase->map[iX][iZ] != 0 && currentPhase->map[iX][iZ] != WALL){
-			currentPhase->map[iX][iZ] = EXIT;
-			printf("[DBG] Saida em:  %d : %d \n", iX, iZ);
-			haveExit = 0;
+	room *player = currentPhase->room_list, *candidate = NULL, *aux = NULL;
+	float distance, maxDistance = 0;
+	short i, j;
+
+	// Cria a saída na sala mais distante
+	aux = player->next;
+	do {
+        distance = sqrt(pow(player->coord_x - aux->coord_x, 2) + pow(player->coord_z - aux->coord_z, 2));
+		if (distance > maxDistance){
+			maxDistance = distance;
+			candidate = aux;
+		}
+		aux = aux->next;
+	} while (aux != NULL);
+
+	// Monta a "saída"
+	for (i=candidate->coord_x - 1; i <= candidate->coord_x + 1; i++) {
+		for (j=candidate->coord_z - 1; j <= candidate->coord_z + 1; j++) {
+			currentPhase->map[i][j] = EXIT;
 		}
 	}
 }
@@ -364,10 +374,10 @@ void buildMap() {
 				case EXIT:
 					//Saída
 					glPushMatrix();
-						glTranslatef(i + 0.5, -0.2, j + 0.5);
-						glScalef(1, 0.1, 1);
-						glColor3ub(245, 51, 196);	
-						glutSolidCube(1);
+						glTranslatef(i + 0.5, 4, j + 0.5);
+						glScalef(1, 8, 1);
+						glColor3ub(245, 51, 196);
+						glutWireCube(1);
 					glPopMatrix();
 					break;
 
