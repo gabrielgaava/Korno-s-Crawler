@@ -352,6 +352,7 @@ int verificaQuadrante(){
       return 4;
    
 }
+
 void walk3d(int valor){
    int quadrante;
    quadrante = verificaQuadrante();
@@ -383,7 +384,6 @@ void walk3d(int valor){
       break;
    }
 }
-
 
 void keyboard3d(unsigned char key, int x, int y) {
    //Key - recebe o código ASCII da tecla
@@ -530,6 +530,7 @@ void keyboard(unsigned char key, int x, int y) {
             // Começa o jogo
             if(nowHud == 2){
                //Inicializa as variáveis
+               ISound* music = engine->play2D("assets/theme.mp3", true);
                startGame();
                idPhase = 1;
                nowHud = 1;

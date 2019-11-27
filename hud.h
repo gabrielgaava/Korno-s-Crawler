@@ -45,16 +45,17 @@ void HUD(){
    glColor4ub(245,86,112, 255);
    glRectd(mainChar->lifePerc*-1, 0.02, mainChar->lifePerc, -0.02);
 
-   string text = "Vida: "+ to_string(mainChar->pLife) +"%";
-   drawText(text.data(), text.size(), 6, 9);
+   int life = ceil(mainChar->pLife);
+   string text = "Vida: "+ to_string(life) +"%";
+   drawText(text.data(), text.size(), -9.5, 9);
 
    glColor4f(1.0, 1.0, 1.0, 1.0);
    string text3 = "Fase atual:  " + to_string(idPhase);
-   drawText(text3.data(), text3.size(), 6.6, 8.5);
+   drawText(text3.data(), text3.size(), 6.6, 9);
 
    glColor4f(1.0, 1.0, 1.0, 1.0);
    string text2 = "Balas:  " + to_string(mainChar->currentAmmo);
-   drawText(text2.data(), text2.size(), 6.6, 8);
+   drawText(text2.data(), text2.size(), 6.6, 8.5);
 
    /*glColor4f(1.0, 1.0, 1.0, 1.0);
    string text3 = "Traps: " + to_string(mainChar->currentTraps);
@@ -80,9 +81,21 @@ void welcomeHUD(){
    glColor4f(1.0, 0.0, 0.0, 1.0);
    drawText(gameOverTxt.data(), gameOverTxt.size(), -3, 0);
 
-   string instTxt = "Para começar aperte <ENTER> ... e Boa Sorte.";
+   string instTxt = "Para comecar aperte <ENTER> ... e Boa Sorte.";
    glColor4f(1.0, 1.0, 1.0, 1.0);
    drawText(instTxt.data(), instTxt.size(), -4.5, -1);
+
+   string cmTxt =  "<W A S D> - Movimentacao";
+   string cmTxt2 = "<SPACE> - Atirar";
+   string cmTxt3 = "<P> - Troca de Perspectiva";
+   string cmTxt4 = "<I/O> - Rotacao da Camera";
+
+   glColor4f(1.0, 1.0, 1.0, 0.7);
+   drawText(cmTxt.data(), cmTxt.size(), -2.5, -5);
+   drawText(cmTxt2.data(), cmTxt2.size(), -1.5, -5.7);
+   drawText(cmTxt3.data(), cmTxt3.size(), -2.5, -6.4);
+   drawText(cmTxt4.data(), cmTxt4.size(), -2.5, -7.1);
+
 
    glColor4f(0.0, 0.0, 0.0,0.8);
    glRectd(-1,1,1,-1); 
