@@ -57,9 +57,10 @@ void HUD(){
    string text2 = "Balas:  " + to_string(mainChar->currentAmmo);
    drawText(text2.data(), text2.size(), 6.6, 8.5);
 
-   /*glColor4f(1.0, 1.0, 1.0, 1.0);
-   string text3 = "Traps: " + to_string(mainChar->currentTraps);
-   drawText(text3.data(), text3.size(), 6.6, 8);*/
+   glColor4f(1.0, 1.0, 1.0, 1.0);
+   string text4 = "Traps: " + to_string(mainChar->currentTraps);
+   drawText(text4.data(), text4.size(), 6.6, 8);
+   
 }
 
 //"Tela" de Game over
@@ -85,16 +86,35 @@ void welcomeHUD(){
    glColor4f(1.0, 1.0, 1.0, 1.0);
    drawText(instTxt.data(), instTxt.size(), -4.5, -1);
 
+   string instTxt2 = "Pressione <H> para ajuda";
+   glColor4f(1.0, 1.0, 1.0, 0.8);
+   drawText(instTxt2.data(), instTxt2.size(), -2.5, -1.7);
+
+   glColor4f(0.0, 0.0, 0.0,0.8);
+   glRectd(-1,1,1,-1); 
+}
+
+void helpHUD(){
+   string titleTxt = "Guia para o Noob:";
+   glColor4f(1.0, 0.0, 0.0, 1.0);
+   drawText(titleTxt.data(), titleTxt.size(), -9, 9);
+
+   string instTxt = "Para voltar aperte <H>";
+   glColor4f(1.0, 1.0, 1.0, 1.0);
+   drawText(instTxt.data(), instTxt.size(), -9, 8.5);
+
    string cmTxt =  "<W A S D> - Movimentacao";
    string cmTxt2 = "<SPACE> - Atirar";
    string cmTxt3 = "<P> - Troca de Perspectiva";
    string cmTxt4 = "<I/O> - Rotacao da Camera";
+   string cmTxt5 = "<T> - Colocar Armadilha";
 
    glColor4f(1.0, 1.0, 1.0, 0.7);
-   drawText(cmTxt.data(), cmTxt.size(), -2.5, -5);
-   drawText(cmTxt2.data(), cmTxt2.size(), -1.5, -5.7);
-   drawText(cmTxt3.data(), cmTxt3.size(), -2.5, -6.4);
-   drawText(cmTxt4.data(), cmTxt4.size(), -2.5, -7.1);
+   drawText(cmTxt.data(), cmTxt.size(), -9, 7);
+   drawText(cmTxt2.data(), cmTxt2.size(), -9, 6.5);
+   drawText(cmTxt3.data(), cmTxt3.size(), -9, 6);
+   drawText(cmTxt4.data(), cmTxt4.size(), -9, 5.5);
+   drawText(cmTxt5.data(), cmTxt5.size(), -9, 5);
 
 
    glColor4f(0.0, 0.0, 0.0,0.8);
@@ -119,6 +139,8 @@ void drawHUD(int hud){
       HUD();
    if(hud == 2)
       gameOverHUD();
+   if(hud == 3)
+      helpHUD();
 
    glMatrixMode(GL_PROJECTION);
    glPopMatrix();

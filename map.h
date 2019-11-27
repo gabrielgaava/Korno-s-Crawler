@@ -346,6 +346,13 @@ void buildMap() {
 
 				case TRAP:
 					//Armadilha colocado pelo Jogador
+					glColor3ub(70, 70, 70);
+					glBegin(GL_QUADS);
+						glVertex3f(i, 0, j);
+						glVertex3f(i, 0, j + 1);
+						glVertex3f(i + 1, 0, j + 1);
+						glVertex3f(i + 1, 0, j);
+					glEnd();
 					glPushMatrix();
 						glTranslatef(i + 0.5, 0.2, j + 0.5);
 						glScalef(1, 0.2, 0.1);

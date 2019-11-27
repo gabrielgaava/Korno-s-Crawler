@@ -77,10 +77,10 @@ void getLife(){
 }
 
 //Função para criar um TRAP
-void putTrap(int x, int z){
+void putTrap(){
    if(mainChar->currentTraps >= 1){
       mainChar->currentTraps -= 1;
-      currentPhase->map[x][z] = 5;
+      currentPhase->map[mainChar->charx][mainChar->charz] = TRAP;
       ISound* music = engine->play2D("assets/trap.wav", false);
    }
 }
@@ -126,7 +126,7 @@ void adjustCamera(){
 //Função que cria o Frame
 void buildFrame() {
 
-   if(nowHud != 0){
+   if(nowHud != 0 && nowHud != 3){
       // Constroi o mapa
       buildPhase();
 
@@ -167,7 +167,7 @@ void idle(){
          nowHud = 2;
          engine->stopAllSounds();
          ISound* music = engine->play2D("assets/gameOver.mp3", false);
-         cout << "Voce MORREU!";
+         cout << "Voce MORREU!\n";
          
       }
    }
@@ -420,17 +420,15 @@ void keyboard3d(unsigned char key, int x, int y) {
          break;
 
       case 'd':
-         printf("rot %f quad %d\n",rot,verificaQuadrante(rot));
          walk3d2(1);
          break;
       
       case 'a':
-          printf("rot %f quad %d\n",rot,verificaQuadrante(rot));
          walk3d2(-1);
          break;
       
       case 'i':
-         rot -= 10;
+         rot -= 3;
          if (rot < 0) {
             rot = 355;
          }
@@ -439,7 +437,7 @@ void keyboard3d(unsigned char key, int x, int y) {
          break;
 
       case 'o':
-         rot += 10;
+         rot += 3;
          if(rot == 360)
             rot = 0;
          // Atualiza as direções do personagem
@@ -528,10 +526,22 @@ void keyboard(unsigned char key, int x, int y) {
                nowHud = 1;
             break;
 
+         case 'h':
+            if(nowHud == 0)
+               nowHud = 3;
+            else
+               if(nowHud == 3)
+                  nowHud = 0;
+            break;
+
          case 32:
             // Atira com ESPAÇO
             createBullet(tipoCam,rot,engine);
             break;
+         
+         case 't':
+            putTrap();
+            
             
          default:
             break;

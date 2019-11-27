@@ -7,7 +7,7 @@
 #define MONSTER_DAMAGE 10
 #define MONSTER_ATACK_COOLDOWN 1.5
 #define MONSTER_WALK_COOLDOWN 0.8
-#define MONSTER_NUMBER 100
+#define MONSTER_NUMBER 0
 
 #include <stdlib.h>
 #include <math.h>
@@ -53,7 +53,7 @@ void createMonsters() {
     int i, j, k;
     monster *newMonster = NULL, *aux = NULL;
 
-    for (k = 0; k < MONSTER_NUMBER; k++) {
+    for (k = 0; k < MONSTER_NUMBER + idPhase * 10; k++) {
         do {
             i = rand() % currentPhase->size_x;
             j = rand() % currentPhase->size_z;
@@ -183,6 +183,10 @@ void moveMonsters(ISoundEngine* engine) {
     aux = listMonsters;
     while (aux != NULL) {
         // Se o monstro tomou dano
+        if(verifyMapContent(aux->charx,aux->charz) == TRAP){
+            aux->tookDamage = true;
+        }
+
         if (aux->tookDamage) {
             aux->life = 0;
             ISound* music = engine->play2D("assets/zombie.mp3", false);
