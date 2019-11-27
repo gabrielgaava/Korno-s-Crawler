@@ -381,8 +381,8 @@ void buildMap() {
 					glPushMatrix();
 						glTranslatef(i + 0.5, 4, j + 0.5);
 						glScalef(1, 8, 1);
-						glColor4ub(245, 51, 196, 0.5);
-						glutSolidCube(1);
+						glColor4ub(245, 51, 196, 255);
+						glutWireCube(1)	;
 					glPopMatrix();
 				default:
 					break;

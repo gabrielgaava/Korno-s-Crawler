@@ -20,16 +20,16 @@ typedef struct bullet {
 bullet * bulletList = NULL;
 
 /* Protótipos das funções */
-void createBullet();
+void createBullet(ISoundEngine* engine);
 void buildBullet(bullet *);
 void moveBullets();
-void getAmmo();
+void getAmmo(ISoundEngine* engine);
 void clearBullets();
 
 /* Funções */
 
 // Função que cria uma bala
-void createBullet(){
+void createBullet(ISoundEngine* engine){
     bullet *aux = NULL, *newBullet = NULL;
     
     // Verifica se o jogador possui tiros
@@ -45,6 +45,9 @@ void createBullet(){
         newBullet->direcaoX = mainChar->direcaox;
         newBullet->direcaoY = mainChar->direcaoy;
         newBullet->direcaoZ = mainChar->direcaoz;
+
+        //Reproduz o som
+        ISound* music = engine->play2D("assets/shoot.mp3", false);
 
         if (bulletList != NULL) {
             //Coloca no fim da lista de balas
@@ -138,7 +141,9 @@ void moveBullets() {
 }
 
 // Função que pega munição do cenário
-void getAmmo() {
+void getAmmo(ISoundEngine* engine) {
+    //Reproduz o som
+    ISound* music = engine->play2D("assets/reload.mp3", false);
     mainChar->currentAmmo = mainChar->currentAmmo + 2;
     currentPhase->map[mainChar->charx][mainChar->charz] = 0;
 }
