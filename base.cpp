@@ -392,9 +392,9 @@ void keyboard(unsigned char key, int x, int y) {
    //x, y - recebem as posições do mouse na tela (permite tratar os dois dispositivos)
 
    //Mapeia teclas especiais que devem ser tratadas diferente dependendo do tipo da câmera
-   char special_keys[] = {'w', 's', 'a', 'd'};
+   char special_keys[] = {'w', 's', 'a', 'd','q','e'};
    bool isSpecialKey = false;
-   for (int i=0; i < 4; i++) {
+   for (int i=0; i < 6; i++) {
       if (key == special_keys[i]){
          isSpecialKey = true;
       }
