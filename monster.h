@@ -7,7 +7,7 @@
 #define MONSTER_DAMAGE 10
 #define MONSTER_ATACK_COOLDOWN 1.5
 #define MONSTER_WALK_COOLDOWN 0.8
-#define MONSTER_NUMBER 15
+#define MONSTER_NUMBER 25
 
 #include <stdlib.h>
 #include <math.h>

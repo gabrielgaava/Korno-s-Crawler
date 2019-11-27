@@ -9,6 +9,7 @@
 #include "character.h"
 #include "monster.h"
 
+int rot1,tipoCam1;
 typedef struct bullet {
     float coordX, coordY, coordZ;
     float direcaoX, direcaoY, direcaoZ;
@@ -20,7 +21,7 @@ typedef struct bullet {
 bullet * bulletList = NULL;
 
 /* Protótipos das funções */
-void createBullet(ISoundEngine* engine);
+void createBullet(int tipoCam,int rot,ISoundEngine *engine);
 void buildBullet(bullet *);
 void moveBullets();
 void getAmmo(ISoundEngine* engine);
@@ -28,9 +29,75 @@ void clearBullets();
 
 /* Funções */
 
+int verificaQuadrante(int rot){
+    if(tipoCam1 > 0){
+        if(rot > 315)
+            return 1;
+        else if(rot <= 45)
+            return 1;
+        else if(rot > 45 && rot <= 135)
+            return 2;
+        else if(rot > 135 && rot <= 225 )
+            return 3;
+        else if(rot >225 && rot <= 315)
+            return 4;
+    }
+    else{
+        if(mainChar->direcaox == 0 && mainChar->direcaoz == 1)
+            return 1;
+        if(mainChar->direcaox == 1 && mainChar->direcaoz == 0)
+            return 2;
+        if(mainChar->direcaox == 0 && mainChar->direcaoz == -1)
+            return 3;
+        if(mainChar->direcaox == -1 && mainChar->direcaoz == 0)
+            return 4;
+        
+    }
+        
+}
+
+bullet *quadrante_to_direcao(bullet *nova,int rot){
+      int quadrante;
+      quadrante = verificaQuadrante(rot);
+
+      switch (quadrante)
+      {
+      case 1:
+         nova->direcaoX = 1;
+         nova->direcaoZ = 0;
+         break;
+      
+      case 2:
+         nova->direcaoZ = 1;
+         nova->direcaoX = 0;
+         break;
+      
+      case 3:
+         nova->direcaoX = -1;
+         nova->direcaoZ = 0;
+         break;
+
+      case 4:
+         nova->direcaoX = 0;
+         nova->direcaoZ = -1;
+         break;
+
+      
+      default:
+         break;
+      }
+      
+      nova->direcaoY = mainChar->direcaoy;
+      return nova;
+
+}
+
+
 // Função que cria uma bala
-void createBullet(ISoundEngine* engine){
+void createBullet(int tipoCam,int rot,ISoundEngine *engine){
     bullet *aux = NULL, *newBullet = NULL;
+    rot1 = rot;
+    tipoCam1 = tipoCam;
     
     // Verifica se o jogador possui tiros
     if (mainChar->currentAmmo > 0) {
@@ -42,9 +109,16 @@ void createBullet(ISoundEngine* engine){
         newBullet->coordX = mainChar->charx;
         newBullet->coordY = mainChar->chary;
         newBullet->coordZ = mainChar->charz;
-        newBullet->direcaoX = mainChar->direcaox;
-        newBullet->direcaoY = mainChar->direcaoy;
-        newBullet->direcaoZ = mainChar->direcaoz;
+        if(tipoCam >0 ){
+            newBullet->direcaoX = mainChar->direcaox;
+            newBullet->direcaoY = mainChar->direcaoy;
+            newBullet->direcaoZ = mainChar->direcaoz;
+        }
+        else
+        {
+            newBullet = quadrante_to_direcao(newBullet,rot);
+        }
+        
 
         //Reproduz o som
         ISound* music = engine->play2D("assets/shoot.mp3", false);
@@ -64,9 +138,17 @@ void createBullet(ISoundEngine* engine){
 
 // Função que controi a munição
 void buildBullet(bullet * b) {
+    float valor = 0.78;
+    int quadrante = verificaQuadrante(rot1);
     glPushMatrix();
         glColor3ub(0, 255, 0);
-        glTranslatef(b->coordX + 0.5, 1.4, b->coordZ + 0.5);
+        if(rot1 > 2)
+            glTranslatef(b->coordX + 0.5, 1.4, b->coordZ -valor);
+        else
+        {
+             glTranslatef(b->coordX + 0.5, 1.4, b->coordZ +valor);
+        }
+        
         glScalef(0.1, 0.05, 0.1);
         glutSolidSphere(1, 20, 20);
     glPopMatrix();

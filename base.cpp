@@ -109,7 +109,7 @@ void adjustCamera(){
       // Define a posição da câmera 
       posx = mainChar->charx;
       posy = 2;
-      posz = mainChar->charz +0.2;
+      posz = mainChar->charz + 0.5;
 
       //Define onde a lente da câmera estará apontada
       ox = cos(DEG_TO_RAD*rot) + posx ;
@@ -339,23 +339,10 @@ void keyboard2d(unsigned char key) {
    }
 }
 
-int verificaQuadrante(){
-   if(rot > 315)
-      return 1;
-   else if(rot <= 45)
-      return 1;
-   else if(rot > 45 && rot <= 135)
-      return 2;
-   else if(rot > 135 && rot <= 225 )
-      return 3;
-   else if(rot >225 && rot <= 315)
-      return 4;
-   
-}
 
 void walk3d(int valor){
    int quadrante;
-   quadrante = verificaQuadrante();
+   quadrante = verificaQuadrante(rot);
 
    switch (quadrante)
    {
@@ -385,6 +372,39 @@ void walk3d(int valor){
    }
 }
 
+void walk3d2(int valor){
+
+   int quadrante;
+   quadrante = verificaQuadrante(rot);
+
+   switch (quadrante)
+   {
+   case 4:
+      if(currentPhase->map[mainChar->charx+valor][mainChar->charz] >= 0)
+         mainChar->charx += valor;
+      break;
+   
+   case 3:
+      if(currentPhase->map[mainChar->charx][mainChar->charz-valor] >= 0)
+         mainChar->charz -= valor;
+      break;
+   
+   case 2:
+      if(currentPhase->map[mainChar->charx-valor][mainChar->charz] >= 0)
+         mainChar->charx -= valor;
+      break;
+   
+   case 1:
+      if(currentPhase->map[mainChar->charx][mainChar->charz+valor] >= 0)
+         mainChar->charz += valor;
+      break;
+
+   default:
+      break;
+   }
+
+}
+
 void keyboard3d(unsigned char key, int x, int y) {
    //Key - recebe o código ASCII da tecla
    //x, y - recebem as posições do mouse na tela (permite tratar os dois dispositivos)
@@ -398,9 +418,19 @@ void keyboard3d(unsigned char key, int x, int y) {
       case 'w':
          walk3d(-1);
          break;
+
+      case 'd':
+         printf("rot %f quad %d\n",rot,verificaQuadrante(rot));
+         walk3d2(1);
+         break;
       
       case 'a':
-         rot -= 5;
+          printf("rot %f quad %d\n",rot,verificaQuadrante(rot));
+         walk3d2(-1);
+         break;
+      
+      case 'i':
+         rot -= 10;
          if (rot < 0) {
             rot = 355;
          }
@@ -408,58 +438,14 @@ void keyboard3d(unsigned char key, int x, int y) {
          updateCharRotDirection(rot);
          break;
 
-      case 'd':
-         rot += 5;
+      case 'o':
+         rot += 10;
          if(rot == 360)
             rot = 0;
          // Atualiza as direções do personagem
          updateCharRotDirection(rot);   
          break;
 
-
-      /*
-      case 'w':
-         if(currentPhase->map[mainChar->charx+1][mainChar->charz] >= 0){
-            mainChar->charx ++;
-            
-         }
-         adjustCamera();
-         break;
-
-      case 's':
-         if(currentPhase->map[mainChar->charx-1][mainChar->charz] >= 0)
-         mainChar->charx --;
-         adjustCamera();
-         break;
-
-      case 'a':
-         if(currentPhase->map[mainChar->charx][mainChar->charz-1] >= 0)
-            mainChar->charz--;
-         adjustCamera();
-         break;
-         
-      case 'd':
-         if(currentPhase->map[mainChar->charx][mainChar->charz+1] >= 0)
-            mainChar->charz++;
-         adjustCamera();
-         break;
-
-
-      case 'q':
-         rot -= 5;
-         if(rot == 0)
-            rot = 360;
-         adjustCamera();
-         break;
-      
-      case 'e':
-         rot += 5;
-         if(rot == 360)
-            rot = 0;
-         adjustCamera();
-         break;
-
-      */
 
    }
    adjustCamera();
@@ -470,7 +456,7 @@ void keyboard(unsigned char key, int x, int y) {
    //x, y - recebem as posições do mouse na tela (permite tratar os dois dispositivos)
 
    //Mapeia teclas especiais que devem ser tratadas diferente dependendo do tipo da câmera
-   char special_keys[] = {'w', 's', 'a', 'd','q','e'};
+   char special_keys[] = {'w', 's', 'a', 'd','i','o'};
    bool isSpecialKey = false;
    for (int i=0; i < 6; i++) {
       if (key == special_keys[i]){
@@ -479,7 +465,7 @@ void keyboard(unsigned char key, int x, int y) {
    }
 
    // Verifica se é uma tecla especial
-   if (isSpecialKey) {
+   if (isSpecialKey && !mainChar->isDead) {
       if (tipoCam > 0) {
          // Se a câmera for 2D
          keyboard2d(key);
@@ -544,7 +530,7 @@ void keyboard(unsigned char key, int x, int y) {
 
          case 32:
             // Atira com ESPAÇO
-            createBullet(engine);
+            createBullet(tipoCam,rot,engine);
             break;
             
          default:
@@ -628,7 +614,7 @@ int main(int argc,char **argv) {
    startGame();
 
    //Mostra o Mapa
-	//printMap();
+	printMap();
 
    //Opacidade nas cores
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
