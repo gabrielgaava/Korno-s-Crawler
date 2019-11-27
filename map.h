@@ -1,5 +1,8 @@
 // Biblioteca relacionada as funções do mapa
 
+#ifndef _MAP_H_
+#define _MAP_H_
+
 #include <stdlib.h>
 #include <GL/glut.h>
 
@@ -317,6 +320,17 @@ void buildMap() {
 					glPopMatrix();
 					break;
 
+				case TRAP:
+					//Armadilha colocado pelo Jogador
+					glPushMatrix();
+						glTranslatef(i + 0.5, 0.2, j + 0.5);
+						glScalef(1, 0.2, 0.1);
+						glRotatef(45.0, 0, 1, 0);
+						glColor3ub(0,200,112);
+						glutSolidCube(1);
+					glPopMatrix();
+					break;	
+
 				case LIFE_SPHERE:
 					//Life
 					glPushMatrix();
@@ -410,3 +424,5 @@ void printMap(){
 		printf("\n");
 	}
 }
+
+#endif

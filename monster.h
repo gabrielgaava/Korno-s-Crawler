@@ -29,6 +29,9 @@ typedef struct monster {
     //Variável que conta o cooldown do hit
     short atackCooldown;
 
+    // Variável que verifica se o monstro tomou dano
+    bool tookDamage;
+
     //Utilizada para criar uma lista de monstros
     struct monster *next;
 } monster;
@@ -40,7 +43,7 @@ monster *listMonsters = NULL;
 void createMonsters();
 void buildMonsters();
 void moveMonsters();
-bool verifyMonsterPosition(float x, float z);
+monster * verifyMonsterPosition(float x, float z);
 
 //Função que cria novos monstros
 void createMonsters() {
@@ -54,14 +57,20 @@ void createMonsters() {
         } while (currentPhase->map[i][j] != 1);
 
         newMonster = new monster();
+
         newMonster->charx = i;
         newMonster->chary = 0;
         newMonster->charz = j;
+
         newMonster->direcaox = 1;
         newMonster->direcaoy = 0;
         newMonster->direcaoz = 0;
+
         newMonster->life = 1;
+        newMonster->tookDamage = false;
+
         newMonster->atackCooldown = 0;
+
         newMonster->next = NULL;
 
         //Adiciona na lista de monstros
@@ -193,7 +202,7 @@ void moveMonsters() {
 
                 //Se entrar em algum IF, vai para a próxima iteração do for
                 if (distX > 0 && verifyMapContent(aux->charx + 1, aux->charz) >= 0) {
-                    if (!verifyMonsterPosition(aux->charx + 1, aux->charz)) {
+                    if (verifyMonsterPosition(aux->charx + 1, aux->charz) == NULL) {
                         if (aux->direcaox != 1) {
                             aux->direcaox = 1;
                             aux->direcaoz = 0;
@@ -205,7 +214,7 @@ void moveMonsters() {
                 }
 
                 if (distX < 0 && verifyMapContent(aux->charx - 1, aux->charz) >= 0) {
-                    if (!verifyMonsterPosition(aux->charx - 1, aux->charz)) {
+                    if (verifyMonsterPosition(aux->charx - 1, aux->charz) == NULL) {
                         if (aux->direcaox != -1) {
                             aux->direcaox = -1;
                             aux->direcaoz = 0;
@@ -217,7 +226,7 @@ void moveMonsters() {
                 }
                 
                 if (distZ > 0 && verifyMapContent(aux->charx, aux->charz + 1) >= 0) {
-                    if (!verifyMonsterPosition(aux->charx, aux->charz + 1)) {
+                    if (verifyMonsterPosition(aux->charx, aux->charz + 1) == NULL) {
                         if (aux->direcaoz != 1) {
                             aux->direcaox = 0;
                             aux->direcaoz = 1;
@@ -229,7 +238,7 @@ void moveMonsters() {
                 }
 
                 if (distZ < 0 && verifyMapContent(aux->charx, aux->charz - 1) >= 0) {
-                    if (!verifyMonsterPosition(aux->charx, aux->charz - 1)) {
+                    if (verifyMonsterPosition(aux->charx, aux->charz - 1) == NULL) {
                         if (aux->direcaoz != -1) {
                             aux->direcaox = 0;
                             aux->direcaoz = -1;
@@ -245,18 +254,18 @@ void moveMonsters() {
 }
 
 // Função que verifica se possui algum monstro naquela posição
-bool verifyMonsterPosition(float x, float z) {
+monster * verifyMonsterPosition(float x, float z) {
     monster *aux = NULL;
 
     // Busca se naquele ponto existe algum zumbi
     for (aux = listMonsters; aux != NULL; aux = aux->next) {
         if (aux->charx == x && aux->charz == z) {
-            return true;
+            return aux;
         }
     }
 
     // Se não encontrou retorna false
-    return false;
+    return NULL;
 }
 
 #endif

@@ -7,6 +7,7 @@
 // Bibliotecas utilizadas neste arquivo
 #include <GL/glut.h>
 #include "character.h"
+#include "monster.h"
 
 typedef struct bullet {
     float damage;
@@ -22,6 +23,8 @@ bullet * bulletList = NULL;
 
 /* Protótipos das funções */
 void createBullet();
+void buildBullet(bullet *);
+void moveBullets();
 
 /* Funções */
 
@@ -48,6 +51,51 @@ void createBullet(){
         aux->next = newBullet;
     } else {
         bulletList = newBullet;
+    }
+}
+
+// Função que controi a munição
+void buildBullet(bullet * b) {
+    glPushMatrix();
+        glTranslatef(b->coordX + 0.5, 1.4, b->coordZ + 0.5);
+        glScalef(0.1, 0.05, 0.1);
+        glutSolidSphere(1, 20, 20);
+    glPopMatrix();
+}
+
+// Função que verifica colisão nos tiros e chama a função que modela a bala
+void moveBullets() {
+    bullet *aux = NULL;
+    monster *monsterHit = NULL;
+
+    for (aux = bulletList; aux != NULL; aux = aux->next) {
+        
+        // Faz a lógica de movimentação da bala
+        if (aux->direcaoX != 0) {
+            if (aux->direcaoX == 1) {
+                aux->coordX++;
+            } else {
+                aux->coordX--;
+            }
+        } else {
+            if (aux->direcaoZ == 1) {
+                aux->coordZ++;
+            } else {
+                aux->coordZ--;
+            }
+        }
+
+        // Verifica a colisão
+        monsterHit = verifyMonsterPosition(aux->coordX, aux->coordZ);
+        if (monsterHit != NULL) {
+            // Caso colidiu
+            // Sinaliza na struct que o monstrou tomou dano
+            monsterHit->tookDamage = true;
+        } else {
+            // Se não colidiu
+            // Chamada da função que controi a bala
+            buildBullet(aux);
+        }
     }
 }
 

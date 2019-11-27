@@ -7,6 +7,7 @@
 // Bibliotecas utilizadas nesse arquivo
 #include <stdlib.h>
 #include <GL/glut.h>
+#include "map.h"
 
 /* Definição das structs */
 typedef struct character {
@@ -23,6 +24,9 @@ typedef struct character {
 
     //Utilizada para armazenar a arma
     int currentAmmo, limitAmmo;
+
+    //Armadilhas usados no jogo
+    int currentTraps = 5;
 
     //Vida do jogador
     float pLife = 100;
@@ -68,7 +72,6 @@ void createMainChar(){
             mainChar->charz = aux->coord_z;
         }
     }
-    
     //Definindo posição em y do personagem principal
     mainChar->chary = 0;
 
