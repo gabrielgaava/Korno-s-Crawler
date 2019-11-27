@@ -23,6 +23,7 @@ bullet * bulletList = NULL;
 void createBullet();
 void buildBullet(bullet *);
 void moveBullets();
+void getAmmo();
 
 /* Funções */
 
@@ -133,6 +134,12 @@ void moveBullets() {
             aux = aux->next;
         }
     }
+}
+
+// Função que pega munição do cenário
+void getAmmo() {
+    mainChar->currentAmmo = mainChar->currentAmmo + 2;
+    currentPhase->map[mainChar->charx][mainChar->charz] = 0;
 }
 
 #endif
