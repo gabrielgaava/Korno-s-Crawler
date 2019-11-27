@@ -28,8 +28,59 @@ void clearBullets();
 
 /* Funções */
 
+int verificaQuadrante(int rot){
+   if(rot > 315)
+      return 1;
+   else if(rot <= 45)
+      return 1;
+   else if(rot > 45 && rot <= 135)
+      return 2;
+   else if(rot > 135 && rot <= 225 )
+      return 3;
+   else if(rot >225 && rot <= 315)
+      return 4;
+   
+}
+
+bullet *quadrante_to_direcao(bullet *nova,int rot){
+      int quadrante;
+      quadrante = verificaQuadrante(rot);
+
+      switch (quadrante)
+      {
+      case 1:
+         nova->direcaoX = 1;
+         nova->direcaoZ = 0;
+         break;
+      
+      case 2:
+         nova->direcaoZ = 1;
+         nova->direcaoX = 0;
+         break;
+      
+      case 3:
+         nova->direcaoX = -1;
+         nova->direcaoZ = 0;
+         break;
+
+      case 4:
+         nova->direcaoX = 0;
+         nova->direcaoZ = -1;
+         break;
+
+      
+      default:
+         break;
+      }
+      
+      nova->direcaoY = mainChar->direcaoy;
+      return nova;
+
+}
+
+
 // Função que cria uma bala
-void createBullet(){
+void createBullet(int tipoCam,int rot){
     bullet *aux = NULL, *newBullet = NULL;
     
     // Verifica se o jogador possui tiros
@@ -42,9 +93,16 @@ void createBullet(){
         newBullet->coordX = mainChar->charx;
         newBullet->coordY = mainChar->chary;
         newBullet->coordZ = mainChar->charz;
-        newBullet->direcaoX = mainChar->direcaox;
-        newBullet->direcaoY = mainChar->direcaoy;
-        newBullet->direcaoZ = mainChar->direcaoz;
+        if(tipoCam >0 ){
+            newBullet->direcaoX = mainChar->direcaox;
+            newBullet->direcaoY = mainChar->direcaoy;
+            newBullet->direcaoZ = mainChar->direcaoz;
+        }
+        else
+        {
+            newBullet = quadrante_to_direcao(newBullet,rot);
+        }
+        
 
         if (bulletList != NULL) {
             //Coloca no fim da lista de balas

@@ -155,7 +155,7 @@ void buildGun(float x, float y, float z) {
 
     glPushMatrix();
         glTranslatef(x, y, z);
-        glScalef(0.1, 0.17, 0.1);
+        glScalef(0.1, 0.20, 0.1);
         glutSolidCube(1);
     glPopMatrix();
 

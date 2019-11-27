@@ -368,7 +368,7 @@ void buildMap() {
 				case AMMO_DROP:
 					//Drop de munição
 					glPushMatrix();
-						glTranslatef(i + 0.5, 1.5, j + 0.5);
+						glTranslatef(i + 0.5, 0.5, j + 0.5);
 						glRotatef(90, 0, 1, 0);
 						glScalef(0.25, 0.36, 0.25);
 						glColor3ub(0, 255, 0);
