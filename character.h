@@ -42,7 +42,7 @@ void createMainChar();
 void buildMainChar();
 void buildGun(float, float, float);
 void getLife(int x, int z);
-void damageChar(float damage);
+void damageChar(float damage, ISoundEngine* engine);
 void updateCharRotDirection(float);
 void clearMainChar();
 
@@ -156,7 +156,7 @@ void buildGun(float x, float y, float z) {
     glPushMatrix();
         glTranslatef(x, y, z);
         glScalef(0.1, 0.20, 0.1);
-        glutSolidCube(1);
+        glutSolidCube(2);
     glPopMatrix();
 
     glPushMatrix();
@@ -168,8 +168,9 @@ void buildGun(float x, float y, float z) {
 }
 
 // Função que marca o dano no character
-void damageChar(float damage) {
+void damageChar(float damage, ISoundEngine* engine) {
     mainChar->pLife = mainChar->pLife - damage;
+    ISound* music = engine->play2D("assets/damage.mp3", false);
 }
 
 // Atualiza as variaveis de direção de acordo com a rotacao

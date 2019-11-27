@@ -6,17 +6,18 @@
 #include <time.h>
 #include <GL/glut.h>
 #include <iostream>
-#include "map.h"
-#include "character.h"
-#include "monster.h"
-#include "hud.h"
-#include "bullet.h"
 
 //Para a Engine de Som
 #include "assets/soundEngine/irrKlang.h"
 #pragma comment(lib, "irrKlang.lib")
 using namespace irrklang;
 using namespace std;
+
+#include "map.h"
+#include "character.h"
+#include "monster.h"
+#include "hud.h"
+#include "bullet.h"
 
 /* Declaração de Variáveis Globais */
 
@@ -136,7 +137,7 @@ void buildFrame() {
       moveBullets();
 
       //Realiza o movimento dos monstros e posiciona os monstros
-      moveMonsters();
+      moveMonsters(engine);
 
       // Posiciona os monstros
       buildMonsters();
@@ -164,7 +165,10 @@ void idle(){
          mainChar->pLife = 0;
          mainChar->lifePerc = 0;
          nowHud = 2;
+         engine->stopAllSounds();
+         ISound* music = engine->play2D("assets/gameOver.mp3", false);
          cout << "Voce MORREU!";
+         
       }
    }
 }
@@ -183,6 +187,7 @@ void startGame() {
 
 //Função que limpa as variáveis do jogo
 void clearVariables() {
+   ISound* music = engine->play2D("assets/sucess.mp3", false);
    clearBullets();
    clearMonsters();
    clearMainChar();
@@ -425,7 +430,7 @@ void keyboard3d(unsigned char key, int x, int y) {
          break;
       
       case 'i':
-         rot -= 5;
+         rot -= 10;
          if (rot < 0) {
             rot = 355;
          }
@@ -434,57 +439,13 @@ void keyboard3d(unsigned char key, int x, int y) {
          break;
 
       case 'o':
-         rot += 5;
+         rot += 10;
          if(rot == 360)
             rot = 0;
          // Atualiza as direções do personagem
          updateCharRotDirection(rot);   
          break;
 
-
-      /*
-      case 'w':
-         if(currentPhase->map[mainChar->charx+1][mainChar->charz] >= 0){
-            mainChar->charx ++;
-            
-         }
-         adjustCamera();
-         break;
-
-      case 's':
-         if(currentPhase->map[mainChar->charx-1][mainChar->charz] >= 0)
-         mainChar->charx --;
-         adjustCamera();
-         break;
-
-      case 'a':
-         if(currentPhase->map[mainChar->charx][mainChar->charz-1] >= 0)
-            mainChar->charz--;
-         adjustCamera();
-         break;
-         
-      case 'd':
-         if(currentPhase->map[mainChar->charx][mainChar->charz+1] >= 0)
-            mainChar->charz++;
-         adjustCamera();
-         break;
-
-
-      case 'q':
-         rot -= 5;
-         if(rot == 0)
-            rot = 360;
-         adjustCamera();
-         break;
-      
-      case 'e':
-         rot += 5;
-         if(rot == 360)
-            rot = 0;
-         adjustCamera();
-         break;
-
-      */
 
    }
    adjustCamera();
@@ -504,7 +465,7 @@ void keyboard(unsigned char key, int x, int y) {
    }
 
    // Verifica se é uma tecla especial
-   if (isSpecialKey) {
+   if (isSpecialKey && !mainChar->isDead) {
       if (tipoCam > 0) {
          // Se a câmera for 2D
          keyboard2d(key);
@@ -568,7 +529,7 @@ void keyboard(unsigned char key, int x, int y) {
 
          case 32:
             // Atira com ESPAÇO
-            createBullet(tipoCam,rot);
+            createBullet(tipoCam,rot,engine);
             break;
             
          default:
@@ -584,7 +545,7 @@ void keyboard(unsigned char key, int x, int y) {
          break;
 
       case AMMO_DROP:
-         getAmmo();
+         getAmmo(engine);
          break;
 
       case EXIT:
@@ -630,7 +591,7 @@ int main(int argc,char **argv) {
       return 0; // error starting up the engine 
 
    // play some sound stream, looped, in 3D space
-   ISound* music = engine->play2D("assets/m1.mp3", true);
+   ISound* music = engine->play2D("assets/theme.mp3", true);
 
    //Iniatizes glut
 	glutInit(&argc, argv);

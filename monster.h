@@ -44,7 +44,7 @@ monster *listMonsters = NULL;
 /* Definição dos Protótipos das Funções */
 void createMonsters();
 void buildMonsters();
-void moveMonsters();
+void moveMonsters(ISoundEngine* engine);
 monster * verifyMonsterPosition(float x, float z);
 void clearMonsters();
 
@@ -169,7 +169,7 @@ void buildMonsters() {
 }
 
 //Função que realiza a movimentação dos monstros
-void moveMonsters() {
+void moveMonsters(ISoundEngine* engine) {
     monster *aux, *previous;
     int distX, distZ;
     float distance;
@@ -185,6 +185,7 @@ void moveMonsters() {
         // Se o monstro tomou dano
         if (aux->tookDamage) {
             aux->life = 0;
+            ISound* music = engine->play2D("assets/zombie.mp3", false);
         }
          
         if (aux->life > 0) {
@@ -206,8 +207,7 @@ void moveMonsters() {
                     // Se passou do tempo de cooldown, o zumbi pode atacar
                     if (tempoDecorrido >= MONSTER_ATACK_COOLDOWN) {
                         //Aqui dá o dano
-                        damageChar(MONSTER_DAMAGE);
-                        //ISound* music = engine->play2D("assets/damage.mp3", false);
+                        damageChar(MONSTER_DAMAGE, engine);
 
                         // Registra a hora que atacou
                         aux->atackCooldown = clock();
