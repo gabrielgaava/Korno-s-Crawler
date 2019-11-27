@@ -91,10 +91,6 @@ void buildMonsters() {
     float leftArmY = 0.4, rightArmY = 0.4;
 
     monster *aux = NULL;
-    
-    if (listMonsters == NULL) {
-        createMonsters();
-    }
 
     for (aux = listMonsters; aux != NULL; aux = aux->next) {
         if (aux->life == 1){
@@ -106,12 +102,10 @@ void buildMonsters() {
 
             //Rotação de acordo com o lado positivo
             if (aux->direcaox != 0) {
-                if (aux->direcaox == 1) {
-                    //glRotatef(90, 1, 0, 0);
-                } else {
+                if (aux->direcaox == -1) {
                     glRotatef(180, 0, 1, 0);
                 }
-            } else if (aux->direcaoz != 0) {
+            } else {
                 if (aux->direcaoz == 1) {
                     glRotatef(270, 0, 1, 0);
                 } else {
@@ -121,7 +115,7 @@ void buildMonsters() {
 
             //Cabeça do personagem
             glPushMatrix();
-                glColor3ub(255, 255, 0);
+                glColor3ub(123, 164, 49);
                 glTranslatef(0, bodyY + (headY / 2) + 0.075, 0);
                 glScalef(headX, headY, headZ);
                 glutSolidSphere(1, 50, 50);
@@ -129,14 +123,14 @@ void buildMonsters() {
 
             //Corpo do personagem
             glPushMatrix();
-                glColor3ub(255, 0, 255);
+                glColor3ub(18, 10, 143);
                 glTranslatef(0, (bodyY / 2), 0);
                 glScalef(bodyX, bodyY, bodyZ);
                 glutSolidCube(1);
             glPopMatrix();
 
             //Braço esquerdo do personagem
-            glColor3ub(255, 255, 0);
+            glColor3ub(123, 164, 49);
 
             glPushMatrix();
                 glTranslatef(0, bodyY - (leftArmY / 2) - 0.1, - (bodyZ / 2) - (armZ / 2));
@@ -151,7 +145,7 @@ void buildMonsters() {
             glPopMatrix();
 
             //Braço direito do personagem
-            glColor3ub(255, 255, 0);
+            glColor3ub(123, 164, 49);
 
             glPushMatrix();
                 glTranslatef(0, bodyY - (rightArmY / 2) - 0.1, (bodyZ / 2) + (armZ / 2));
@@ -175,8 +169,17 @@ void moveMonsters() {
     monster *aux = NULL;
     float distance, distX, distZ;
 
+    if (listMonsters == NULL) {
+        createMonsters();
+    }
+
     for (aux = listMonsters; aux != NULL; aux = aux->next) {
         //Se o monstro não está morto
+
+        // Se o monstro tomou dano
+        if (aux->tookDamage) {
+            aux->life = 0;
+        }
          
         if (aux->life > 0) {
             //Calcula a distancia do monstro para o player

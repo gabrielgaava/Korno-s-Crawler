@@ -352,8 +352,6 @@ int verificaQuadrante(){
 void walk3d(int valor){
    int quadrante;
    quadrante = verificaQuadrante();
-   printf("quadrante: %d\n",quadrante);
-   printf("rotacao: %f",rot);
 
    switch (quadrante)
    {
