@@ -4,9 +4,10 @@
 #ifndef _MONSTER_H_
 #define _MONSTER_H_
 
-#define MONSTER_DAMAGE 1
-#define MONSTER_ATACK_COOLDOWN 1
-#define MONSTER_WALK_COOLDOWN 1
+#define MONSTER_DAMAGE 10
+#define MONSTER_ATACK_COOLDOWN 1.5
+#define MONSTER_WALK_COOLDOWN 0.8
+#define MONSTER_NUMBER 0
 
 #include <stdlib.h>
 #include <math.h>
@@ -45,13 +46,14 @@ void createMonsters();
 void buildMonsters();
 void moveMonsters();
 monster * verifyMonsterPosition(float x, float z);
+void clearMonsters();
 
 //Função que cria novos monstros
 void createMonsters() {
     int i, j, k;
     monster *newMonster = NULL, *aux = NULL;
 
-    for (k = 0; k < currentPhase->numberRoom; k++) {
+    for (k = 0; k < MONSTER_NUMBER; k++) {
         do {
             i = rand() % currentPhase->size_x;
             j = rand() % currentPhase->size_z;
@@ -214,6 +216,8 @@ void moveMonsters() {
                     // Está a 1 de distancia em X ou Z
                     // Nesse caso, se atacar não faz mais nada
                     // Mesmo se não atacar, não faz nada
+                    previous = aux;
+                    aux = aux->next;
                     continue;
                 }
 
@@ -231,6 +235,8 @@ void moveMonsters() {
                             } else {
                                 aux->charx = aux->charx + 1;
                             }
+                            previous = aux;
+                            aux = aux->next;
                             continue;    
                         }
                     }
@@ -243,6 +249,8 @@ void moveMonsters() {
                             } else {
                                 aux->charx = aux->charx - 1;
                             }
+                            previous = aux;
+                            aux = aux->next;
                             continue;
                         }
                     }
@@ -255,6 +263,8 @@ void moveMonsters() {
                             } else {
                                 aux->charz = aux->charz + 1;
                             }
+                            previous = aux;
+                            aux = aux->next;
                             continue;
                         }
                     }
@@ -267,6 +277,8 @@ void moveMonsters() {
                             } else {
                                 aux->charz = aux->charz - 1;
                             }
+                            previous = aux;
+                            aux = aux->next;
                             continue;
                         }
                     }
@@ -312,6 +324,23 @@ monster * verifyMonsterPosition(float x, float z) {
 
     // Se não encontrou retorna false
     return NULL;
+}
+
+void clearMonsters(){
+    monster *aux = NULL, *previous = NULL;
+
+    if (listMonsters != NULL) {
+        previous = listMonsters;
+        aux = previous->next;
+        do {
+            delete(previous);
+            previous = aux;
+            aux = previous->next;
+        } while (aux->next != NULL);
+        delete(aux);
+
+        listMonsters = NULL;
+    }
 }
 
 #endif

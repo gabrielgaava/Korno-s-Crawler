@@ -24,6 +24,7 @@ void createBullet();
 void buildBullet(bullet *);
 void moveBullets();
 void getAmmo();
+void clearBullets();
 
 /* Funções */
 
@@ -140,6 +141,23 @@ void moveBullets() {
 void getAmmo() {
     mainChar->currentAmmo = mainChar->currentAmmo + 2;
     currentPhase->map[mainChar->charx][mainChar->charz] = 0;
+}
+
+void clearBullets(){
+    bullet *aux = NULL, *previous = NULL;
+
+    if (bulletList != NULL) {
+        previous = bulletList;
+        aux = bulletList->next;
+        do {
+            delete(previous);
+            previous = aux;
+            aux = previous->next;
+        } while (aux->next != NULL);
+        delete(aux);
+    }
+
+    bulletList = NULL;
 }
 
 #endif

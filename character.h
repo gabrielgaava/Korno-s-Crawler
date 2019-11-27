@@ -43,6 +43,8 @@ void buildMainChar();
 void buildGun(float, float, float);
 void getLife(int x, int z);
 void damageChar(float damage);
+void updateCharRotDirection(float);
+void clearMainChar();
 
 //Função que cria o personagem principal
 void createMainChar(){
@@ -88,7 +90,7 @@ void buildMainChar() {
 
     //Translação para a posição do personagem
     glTranslatef(mainChar->charx + 0.5, mainChar->chary, mainChar->charz + 0.5);
-
+    
     //Rotação de acordo com o lado positivo
     if (mainChar->direcaox == -1) {
         glRotatef(180, 0, 1, 0);
@@ -98,7 +100,7 @@ void buildMainChar() {
         } else {
             glRotatef(90, 0, 1, 0);
         }
-    }
+    }        
 
     //Cabeça do personagem
     glPushMatrix();
@@ -168,6 +170,28 @@ void buildGun(float x, float y, float z) {
 // Função que marca o dano no character
 void damageChar(float damage) {
     mainChar->pLife = mainChar->pLife - damage;
+}
+
+// Atualiza as variaveis de direção de acordo com a rotacao
+void updateCharRotDirection(float rot) {
+    if (rot > 315 && rot <= 45) {
+        mainChar->direcaox = 1;
+        mainChar->direcaoz = 0;
+    } else if (rot > 45 && rot <= 135) {
+        mainChar->direcaox = 0;
+        mainChar->direcaoz = 1;
+    } else if (rot > 135 && rot <= 225) {
+        mainChar->direcaox = -1;
+        mainChar->direcaoz = 0;
+    } else {
+        mainChar->direcaox = 0;
+        mainChar->direcaoz = -1;
+    }
+}
+
+void clearMainChar() {
+    delete(mainChar);
+    mainChar = NULL;
 }
 
 #endif

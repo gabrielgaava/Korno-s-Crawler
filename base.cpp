@@ -20,20 +20,23 @@ using namespace std;
 
 /* Declaração de Variáveis Globais */
 
-//Variáveis de definição de ângulo
-int angulo1 = 0, angulo2 = 0, angulo3 = 0;
 //Variáveis que definem a posição da câmera
 float posx, posy, posz;
+
 //Variável que define para onde a câmera olha
 float oy, ox, oz;
+
 //Variável que definem qual eixo estará na vertical do monitor
 int lx, ly,lz;
-double rotation, inclination;
-int botao,estado;
-//Variável que definee o tipo da câmera
+
+//Variável que define o tipo da câmera
 int tipoCam = 1;
+
+//Variavel que define a rotação da câmera
 float rot = 0;
-double t = 0;
+
+// Variável que define o número da fase
+int numberPhase = 1;
 
 //Device de Som
 ISoundEngine* engine = createIrrKlangDevice();
@@ -45,7 +48,7 @@ int initial_time = time(NULL), final_time, frame_count = 0;
 #define DEG_TO_RAD 0.017453292519943295769236907684886
 #endif
 
-//Protótipos das funções
+/* Declaração dos Protótipos das funções */
 void Inicializa();
 void Display();
 void Mouse(int botao, int estado, int x, int y);
@@ -53,12 +56,13 @@ void keyboard (unsigned char key, int x, int y);
 void TeclasEspeciais (int key, int x, int y);
 void timer(int);
 void buildFrame();
-void createGame();
 void getLife();
+void clearVariables();
+void startGame();
 
 //Função para coletar orbe de vida
 void getLife(){
-   mainChar->pLife = mainChar->pLife + 5;
+   mainChar->pLife = mainChar->pLife + 20;
     
    //Vida maxima = 100
    if(mainChar->pLife > 100) {
@@ -120,6 +124,7 @@ void adjustCamera(){
 
 //Função que cria o Frame
 void buildFrame() {
+
    if(nowHud != 0){
       // Constroi o mapa
       buildPhase();
@@ -164,13 +169,24 @@ void idle(){
    }
 }
 
-//Função que cria as variáveis do jogo
-void createGame() {
+// Função que inicia o jogo
+void startGame() {
    //Inicializa (ou cria uma nova) fase com salas e paredes
    createPhase();
 
    //Cria novos monstros
    createMonsters();
+
+   //Inicializa as variaveis do personagem principal
+   createMainChar();
+}
+
+//Função que limpa as variáveis do jogo
+void clearVariables() {
+   clearBullets();
+   clearMonsters();
+   clearMainChar();
+   clearCurrentPhase();
 }
 
 //Função qeu configura o display
@@ -227,7 +243,7 @@ void Display() {
    drawHUD(nowHud);
    //----------------------------------------------------------------   
 	//SwapBuffers dá suporte para mais de um buffer, permitindo execução de animações sem cintilações
-	glutSwapBuffers(); 
+	glutSwapBuffers();
 
    //Contagem de frames
    frame_count++;
@@ -264,7 +280,7 @@ void keyboard2d(unsigned char key) {
    switch (key) {
       case 'w':
          //Verifica se é possível caminhar
-         if (currentPhase->map[posX + 1][posZ] >= 0) {
+         if (currentPhase->map[posX + 1][posZ] >= 0 && verifyMonsterPosition(posX + 1, posZ) == NULL) {
             //Verifica se o personagem está virado para a direção 
             if (mainChar->direcaox != 1) {
                //Se não estiver, vira o personagem
@@ -279,7 +295,7 @@ void keyboard2d(unsigned char key) {
 
       case 's':
          //Lógica análoga a W
-         if (currentPhase->map[posX - 1][posZ] >= 0) {
+         if (currentPhase->map[posX - 1][posZ] >= 0 && verifyMonsterPosition(posX - 1, posZ) == NULL) {
             if (mainChar->direcaox != -1) {
                mainChar->direcaox = -1;
                mainChar->direcaoz = 0;
@@ -291,7 +307,7 @@ void keyboard2d(unsigned char key) {
 
       case 'a':
          //Lógica análoga a W
-         if (currentPhase->map[posX][posZ - 1] >= 0) {
+         if (currentPhase->map[posX][posZ - 1] >= 0 && verifyMonsterPosition(posX, posZ - 1) == NULL) {
             if (mainChar->direcaoz != -1) {
                mainChar->direcaox = 0;
                mainChar->direcaoz = -1;
@@ -303,7 +319,7 @@ void keyboard2d(unsigned char key) {
 
       case 'd':
          //Lógica análoga a W
-         if (currentPhase->map[posX][posZ + 1] >= 0) {
+         if (currentPhase->map[posX][posZ + 1] >= 0  && verifyMonsterPosition(posX, posZ + 1) == NULL) {
             if (mainChar->direcaoz != 1) {
                mainChar->direcaox = 0;
                mainChar->direcaoz = 1;
@@ -361,8 +377,6 @@ void walk3d(int valor){
    default:
       break;
    }
-
-
 }
 
 
@@ -382,17 +396,20 @@ void keyboard3d(unsigned char key, int x, int y) {
       
       case 'a':
          rot -= 5;
-         if(rot == 0)
-            rot = 360;
+         if (rot < 0) {
+            rot = 355;
+         }
+         // Atualiza as direções do personagem
+         updateCharRotDirection(rot);
          break;
 
       case 'd':
          rot += 5;
          if(rot == 360)
             rot = 0;
+         // Atualiza as direções do personagem
+         updateCharRotDirection(rot);   
          break;
-
-         
 
 
       /*
@@ -501,35 +518,27 @@ void keyboard(unsigned char key, int x, int y) {
                   }
                }
             }
-
             adjustCamera();
             break;
             
          case 'r':
             // Começa o jogo
             if(nowHud == 2){
-               //Inicializa as variáveis da Phase 1 do jogo
-               createGame();
-               //Inicializa as variaveis do personagem principal
-               createMainChar();
-               mainChar->pLife = 100;
-               mainChar->isDead = false;
+               //Inicializa as variáveis
+               startGame();
+               idPhase = 1;
                nowHud = 1;
             }
-            break;
-
-         case 't':
-            putTrap(mainChar->charx, mainChar->charz);
-            break;
-
-         case 'k':
-            // Atira
-               createBullet();
             break;
          
          case 13: //ENTER
             if(nowHud == 0)
                nowHud = 1;
+            break;
+
+         case 32:
+            // Atira com ESPAÇO
+            createBullet();
             break;
             
          default:
@@ -538,13 +547,19 @@ void keyboard(unsigned char key, int x, int y) {
    }
 
    // Após executar as ações enviadas pelo teclado, verifica se a posição não possui um item
-   switch (verifyMapContent(mainChar->charx, mainChar->charz)) {
+   short valueMap = verifyMapContent(mainChar->charx, mainChar->charz);
+   switch (valueMap) {
       case LIFE_SPHERE:
          getLife();
          break;
 
       case AMMO_DROP:
          getAmmo();
+         break;
+
+      case EXIT:
+         clearVariables();
+         startGame();
          break;
 
       default:
@@ -603,11 +618,8 @@ int main(int argc,char **argv) {
    glutInitWindowPosition(100, 100);
    glutCreateWindow("Korno's Crawler");
 
-   //Inicializa as variáveis da Phase 1 do jogo
-   createGame();
-
-   //Inicializa as variaveis do personagem principal
-   createMainChar();
+   // Chama a função para inicializar o jogo
+   startGame();
 
    //Mostra o Mapa
 	//printMap();

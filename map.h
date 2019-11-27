@@ -33,12 +33,13 @@ typedef struct phase {
     int size_x, size_z;
 	// Valores possíveis: ver define
     short map[128][128];
-	int finished;
 	int numberRoom;
+	int  exit_x, exit_z;
     room *room_list;
 } phase;
 
 /* Definição de Variáveis Globais */
+short idPhase = 0;
 phase *currentPhase = NULL;
 
 /* Definição dos Protótipos das Funções */
@@ -53,11 +54,15 @@ void buildPhase();
 void buildMap();
 void buildFloor();
 short verifyMapContent(short, short);
+void clearMap();
 void printMap();
 
 // Função que inicializa a struct fase
 void createPhase() {
 	int i, j;
+
+	//Incrementa a fase
+	idPhase = idPhase + 1;
 	
 	currentPhase = new phase();
 
@@ -76,9 +81,6 @@ void createPhase() {
 
 	//Seta o numero de salas que o mapa deve ter
 	currentPhase->numberRoom = NUMBER_ROOM;
-
-	//Seta para 0 a finished
-	currentPhase->finished = 0;
 
 	//Cria um novo mapa
 	createMap();
@@ -215,7 +217,7 @@ void createMap() {
 	//Gera as "coisas" no jogo
 	genereteThingsOnMap();
 
-	//Gera a saída do mapa
+	// Cria a saída do mapa
 	createExit();
 }
 
@@ -228,14 +230,14 @@ void genereteThingsOnMap(){
 			int x = (rand() % 100) + 1;
 			//Caso a posição seja um chão e o valor do rand tenha sido <= a 5
 			//Ele gera uma vida nesta posição
-			if(x <= 5 && currentPhase->map[i][j] == PLAYABLE){
+			if(x <= 3 && currentPhase->map[i][j] == PLAYABLE){
 				currentPhase->map[i][j] = LIFE_SPHERE;
 				i = i + 1;
 				j = j + 3;
 			}
 
 			//Gera alguns obstaculos no mapa
-			if(x > 5 && x <= 15 && currentPhase->map[i][j] == PLAYABLE){
+			if(x > 3 && x <= 10 && currentPhase->map[i][j] == PLAYABLE){
 				//Evitando criar obstaculos em corredores Horizontais
 				if(currentPhase->map[i+1][j] == WALL && currentPhase->map[i-1][j] == WALL)
 					continue;
@@ -265,7 +267,7 @@ void genereteThingsOnMap(){
 			}
 
 			//Gera drops de munição
-			if (x > 15 && x <= 20 && currentPhase->map[i][j] == PLAYABLE) {
+			if (x > 10 && x <= 15 && currentPhase->map[i][j] == PLAYABLE) {
 				currentPhase->map[i][j] = AMMO_DROP;
 				i = i + 1;
 				j = j + 3;
@@ -292,7 +294,7 @@ void createExit() {
 		aux = aux->next;
 	} while (aux != NULL);
 
-	// Monta a "saída"
+	// Posiciona a "saída"
 	for (i=candidate->coord_x - 1; i <= candidate->coord_x + 1; i++) {
 		for (j=candidate->coord_z - 1; j <= candidate->coord_z + 1; j++) {
 			currentPhase->map[i][j] = EXIT;
@@ -301,12 +303,15 @@ void createExit() {
 }
 
 //Função que monta os objetos do mapa
+// Saída possui sua função própria
 void buildMap() {
 	int i, j;
 
 	for (i = 0; i < currentPhase->size_x; i++) {
 		for (j = 0;  j < currentPhase->size_z; j++) {
 
+			glPushMatrix();
+			
 			switch (currentPhase->map[i][j]) {
 				case WALL:
 					//Paredes
@@ -376,11 +381,9 @@ void buildMap() {
 					glPushMatrix();
 						glTranslatef(i + 0.5, 4, j + 0.5);
 						glScalef(1, 8, 1);
-						glColor3ub(245, 51, 196);
-						glutWireCube(1);
+						glColor4ub(245, 51, 196, 0.5);
+						glutSolidCube(1);
 					glPopMatrix();
-					break;
-
 				default:
 					break;
 			}
@@ -392,8 +395,7 @@ void buildMap() {
 
 // Função principal que cria o mapa e o chão
 void buildPhase() {
-
-	if (currentPhase == NULL || currentPhase->finished == 1) {
+	if (currentPhase == NULL) {
 		//Cria uma nova fase com salas e corredores
 		createPhase();
 	}
@@ -428,6 +430,12 @@ void buildFloor() {
 			glVertex3f(x + SIZE_ROOM + 1, 0, z - SIZE_ROOM);
 		glEnd();
 	}
+}
+
+// Função que limpa as variáveis da fase atual
+void clearCurrentPhase() {
+	delete(currentPhase);
+	currentPhase = NULL;
 }
 
 /* Funções de DEBUG */
