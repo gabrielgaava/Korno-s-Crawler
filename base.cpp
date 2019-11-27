@@ -54,10 +54,10 @@ void TeclasEspeciais (int key, int x, int y);
 void timer(int);
 void buildFrame();
 void createGame();
-void getLife(int, int);
+void getLife();
 
 //Função para coletar orbe de vida
-void getLife(int x, int z){
+void getLife(){
    mainChar->pLife = mainChar->pLife + 5;
     
    //Vida maxima = 100
@@ -65,7 +65,7 @@ void getLife(int x, int z){
      mainChar->pLife = 100;
    }
     
-   currentPhase->map[x][z] = 0;
+   currentPhase->map[mainChar->charx][mainChar->charz] = 0;
 
    // play some sound stream, looped, in 3D space
    ISound* music = engine->play2D("assets/life.wav", false);
@@ -256,9 +256,10 @@ void Mouse(int botao, int estado, int rotation, int inclination) {
 void keyboard2d(unsigned char key) {
    //Key - recebe o código ASCII da tecla
    fflush(stdin);
+
    //Passa para int a posição do personagem
-   int posX = (int) mainChar->charx;
-   int posZ = (int) mainChar->charz;
+   short posX = mainChar->charx;
+   short posZ = mainChar->charz;
 
    switch (key) {
       case 'w':
@@ -272,11 +273,6 @@ void keyboard2d(unsigned char key) {
             } else {
                // Se estiver, caminha e executa outras ações (se houver)
                mainChar->charx++;
-            
-               //Se tem uma vida, atualiza
-               if(currentPhase->map[posX + 1][posZ] == LIFE_SPHERE) {
-                  getLife(posX+1, posZ);
-               }
             }
          }
          break;
@@ -289,9 +285,6 @@ void keyboard2d(unsigned char key) {
                mainChar->direcaoz = 0;
             } else {
                mainChar->charx--;
-               if(currentPhase->map[posX - 1][posZ] == LIFE_SPHERE) {
-                  getLife(posX-1, posZ);
-               }
             }
          }
          break;
@@ -304,9 +297,6 @@ void keyboard2d(unsigned char key) {
                mainChar->direcaoz = -1;
             } else {
                mainChar->charz--;
-               if(currentPhase->map[posX][posZ - 1] == LIFE_SPHERE) {
-                  getLife(posX, posZ - 1);
-               }
             }
          }
          break;
@@ -319,16 +309,8 @@ void keyboard2d(unsigned char key) {
                mainChar->direcaoz = 1;
             } else {
                mainChar->charz++;
-               if(currentPhase->map[posX][posZ + 1] == LIFE_SPHERE) {
-                  getLife(posX, posZ + 1);
-               }
             }
          }
-         break;
-
-      case 't':
-         //Coloca uma trap
-         putTrap(1, 1);
          break;
 
       default:
@@ -458,8 +440,6 @@ void keyboard3d(unsigned char key, int x, int y) {
       */
 
    }
-   if(currentPhase->map[mainChar->charx][mainChar->charz] == LIFE_SPHERE)
-            getLife(mainChar->charx,mainChar->charz);
    adjustCamera();
 }
 
@@ -555,6 +535,20 @@ void keyboard(unsigned char key, int x, int y) {
          default:
             break;
       }
+   }
+
+   // Após executar as ações enviadas pelo teclado, verifica se a posição não possui um item
+   switch (verifyMapContent(mainChar->charx, mainChar->charz)) {
+      case LIFE_SPHERE:
+         getLife();
+         break;
+
+      case AMMO_DROP:
+         getAmmo();
+         break;
+
+      default:
+         break;
    }
    
    glutPostRedisplay();
