@@ -6,6 +6,7 @@
 #include <time.h>
 #include <GL/glut.h>
 #include <iostream>
+#include <fstream>
 
 //Para a Engine de Som
 #include "assets/soundEngine/irrKlang.h"
@@ -41,6 +42,9 @@ int numberPhase = 1;
 
 //Device de Som
 ISoundEngine* engine = createIrrKlangDevice();
+
+//Nome do Jogador
+string playerName;
 
 //Variaveis para contagem de FPS
 int initial_time = time(NULL), final_time, frame_count = 0;
@@ -150,6 +154,18 @@ void timer(int){
    glutTimerFunc(10,timer,0);
 }
 
+void gameOver(){
+   nowHud = 2;
+   engine->stopAllSounds();
+   ISound* music = engine->play2D("assets/gameOver.mp3", false);
+   cout << "Voce MORREU!\n";
+   cout << "Voce chegou ate a fase: " << numberPhase << endl;
+   ofstream myfile;
+   myfile.open ("assets/score.txt",ios::app);
+   myfile << playerName << "-" << numberPhase << endl;
+   myfile.close();
+}
+
 //Função executada sempre que nenhuma ação é tomada naquele "quadro"
 void idle(){
    glutPostRedisplay();
@@ -164,11 +180,7 @@ void idle(){
          mainChar->isDead = true;
          mainChar->pLife = 0;
          mainChar->lifePerc = 0;
-         nowHud = 2;
-         engine->stopAllSounds();
-         ISound* music = engine->play2D("assets/gameOver.mp3", false);
-         cout << "Voce MORREU!\n";
-         
+         gameOver();
       }
    }
 }
@@ -560,6 +572,7 @@ void keyboard(unsigned char key, int x, int y) {
          break;
 
       case EXIT:
+         numberPhase++;
          clearVariables();
          startGame();
          break;
@@ -596,6 +609,10 @@ void TeclasEspeciais (int key, int x, int y) {
 }
 
 int main(int argc,char **argv) {
+
+   cout << "Nome do jogador: ";
+   cin >> playerName;
+   cout << "Bom jogo " << playerName << endl;
 
    //Sound Engine
    if (!engine)
